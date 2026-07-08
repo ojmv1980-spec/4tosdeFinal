@@ -488,7 +488,7 @@
         
         <!-- VISTA 4: RESUMEN FINAL -->
         <div id="vista-resumen" class="vista max-w-2xl mx-auto mt-8">
-            <div class="glass-strong p-6 md:p-8 mb-6">
+            <div id="contenedor-resumen-completo" class="glass-strong p-6 md:p-8 mb-6">
                 <div class="text-center mb-6">
                     <div class="text-6xl mb-4 animate-rebotar">!</div>
                     <h2 class="font-titulo text-3xl titulo-gradient mb-2">
@@ -515,10 +515,6 @@
                         VOLVER AL INICIO
                     </button>
                 </div>
-            </div>
-            
-            <div id="tarjeta-oculta" class="hidden">
-                <div id="tarjeta-jugador" class="tarjeta-jugador"></div>
             </div>
         </div>
         
@@ -733,17 +729,17 @@
                 numero: 1, local: "Francia", visitante: "Marruecos",
                 fecha: "2026-07-09T16:00:00", fechaTexto: "Jue 09/07, 4:00 PM",
                 preguntas: [
-                    { id: "p1", texto: "Empate 0-0 en 90?" },
+                    { id: "p1", texto: "Empate 0-0 en 90'?" },
                     { id: "p2", texto: "A Francia le anulan al menos un gol en el partido?" },
                     { id: "p3", texto: "Penal en 1T?" },
-                    { id: "p4", texto: "Gol antes min 15?" }
+                    { id: "p4", texto: "Gol antes min 15'?" }
                 ]
             },
             {
                 numero: 2, local: "España", visitante: "Belgica",
                 fecha: "2026-07-10T15:00:00", fechaTexto: "Vie 10/07, 3:00 PM",
                 preguntas: [
-                    { id: "p1", texto: "Mas de 5 goles en 90?" },
+                    { id: "p1", texto: "Mas de 5 goles en 90'?" },
                     { id: "p2", texto: "Ambos marcan al descanso?" },
                     { id: "p3", texto: "BEL anota en ambas mitades?" },
                     { id: "p4", texto: "ESP anota primero?" }
@@ -753,9 +749,9 @@
                 numero: 3, local: "Noruega", visitante: "Inglaterra",
                 fecha: "2026-07-11T17:00:00", fechaTexto: "Sab 11/07, 5:00 PM",
                 preguntas: [
-                    { id: "p1", texto: "Haaland anota 2+ goles 90?" },
+                    { id: "p1", texto: "Haaland anota 2 o mas goles a los 90'?" },
                     { id: "p2", texto: "ING gana sin recibir goles?" },
-                    { id: "p3", texto: "Empate en 90?" },
+                    { id: "p3", texto: "Empate en 90'?" },
                     { id: "p4", texto: "2T menos goles que 1T?" }
                 ]
             },
@@ -764,7 +760,7 @@
                 fecha: "2026-07-11T21:00:00", fechaTexto: "Sab 11/07, 9:00 PM",
                 preguntas: [
                     { id: "p1", texto: "Se define en penales?" },
-                    { id: "p2", texto: "SUI gana 1-0 en 90?" },
+                    { id: "p2", texto: "SUI gana 1-0 en 90'?" },
                     { id: "p3", texto: "ARG pierde al descanso?" },
                     { id: "p4", texto: "ARG anota primero?" }
                 ]
@@ -1138,50 +1134,25 @@
         
         document.getElementById('btn-descargar-jpg').addEventListener('click', async () => {
             try {
-                const tarjetaDiv = document.getElementById('tarjeta-jugador');
-                tarjetaDiv.innerHTML = `
-                    <h2 class="text-3xl mb-2">4TOS DE FINAL</h2>
-                    <p class="text-white/70 mb-6">Mundial 2026 - Tarjeta de Participacion</p>
-                    <div class="glass p-4 mb-4">
-                        <p class="text-sm text-white/60 mb-1">JUGADOR</p>
-                        <p class="text-2xl font-bold text-yellow-400">${estado.usuarioActual.nombre}</p>
-                    </div>
-                    <div class="space-y-3">
-                        ${PARTIDOS.map((partido, index) => {
-                            const bloqueNum = index + 1;
-                            const respuestas = estado.respuestasTemporales[`bloque_${bloqueNum}`] || {};
-                            return `
-                                <div class="glass p-3">
-                                    <p class="text-xs text-white/60 mb-2">BLOQUE ${bloqueNum}: ${partido.local} vs ${partido.visitante}</p>
-                                    <div class="flex flex-wrap gap-2">
-                                        ${partido.preguntas.map((p, i) => `
-                                            <span class="chip ${respuestasIguales(respuestas[p.id], 'Si') ? 'chip-success' : 'chip-danger'} text-xs">
-                                                P${i + 1}: ${respuestas[p.id]}
-                                            </span>
-                                        `).join('')}
-                                    </div>
-                                </div>
-                            `;
-                        }).join('')}
-                    </div>
-                    <p class="text-center text-xs text-white/40 mt-6">
-                        Generado el ${new Date().toLocaleString('es-VE')}
-                    </p>
-                `;
-                document.getElementById('tarjeta-oculta').classList.remove('hidden');
-                await new Promise(resolve => setTimeout(resolve, 100));
-                const canvas = await html2canvas(tarjetaDiv, {
-                    scale: 3, backgroundColor: null, useCORS: true
+                const elementoACapturar = document.getElementById('contenedor-resumen-completo');
+                
+                const canvas = await html2canvas(elementoACapturar, {
+                    scale: 3,
+                    backgroundColor: '#0a1931',
+                    useCORS: true,
+                    logging: false
                 });
+                
                 const link = document.createElement('a');
                 link.download = `4tos_final_${estado.usuarioActual.nombre}.jpg`;
                 link.href = canvas.toDataURL('image/jpeg', 0.95);
                 link.click();
-                document.getElementById('tarjeta-oculta').classList.add('hidden');
+                
                 mostrarToast('Tarjeta descargada!', 'success');
                 reproducirSonido('trompeta');
             } catch (error) {
                 console.error('Error al generar imagen:', error);
+                mostrarToast('Error al generar imagen', 'danger');
             }
         });
         
@@ -1657,7 +1628,24 @@
                 }
             }
         };
-        window.generarJPGAdmin = async (id) => { mostrarToast('Funcion en desarrollo', 'info'); };
+        window.generarJPGAdmin = async (id) => {
+            try {
+                const docSnap = await getDoc(doc(db, 'participantes', id));
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    estado.usuarioActual = { id: id, nombre: data.nombre };
+                    estado.respuestasTemporales = data.respuestas;
+                    mostrarResumen();
+                    mostrarVista('vista-resumen');
+                    setTimeout(() => {
+                        document.getElementById('btn-descargar-jpg').click();
+                    }, 500);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarToast('Error al generar JPG', 'danger');
+            }
+        };
         
         async function cargarTabControl() {
             const container = document.getElementById('tab-control');
