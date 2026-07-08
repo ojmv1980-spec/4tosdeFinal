@@ -3,15 +3,718 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>4tos de Final - Predicciones Deportivas</title>
+    <title>4TOS DE FINAL - Mundial 2026</title>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
-    <!-- Firebase SDKs -->
+    <style>
+        :root {
+            --azul-marino: #0a1931;
+            --azul-claro: #152642;
+            --morado: #6a1b9a;
+            --morado-oscuro: #4a148c;
+            --fucsia: #d946ef;
+            --fucsia-claro: #e879f9;
+            --verde: #10b981;
+            --verde-oscuro: #059669;
+            --rojo: #ef4444;
+            --rojo-oscuro: #dc2626;
+            --amarillo: #fbbf24;
+            --blanco: #ffffff;
+        }
+        
+        * { font-family: 'Montserrat', sans-serif; }
+        
+        body {
+            background: linear-gradient(135deg, #0a1931 0%, #152642 50%, #6a1b9a 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: radial-gradient(circle at 20% 50%, rgba(217, 70, 239, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(106, 27, 154, 0.1) 0%, transparent 50%);
+            animation: fondoAnimado 20s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        @keyframes fondoAnimado {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(-20px, -20px); }
+        }
+        
+        .font-titulo { font-family: 'Orbitron', sans-serif; font-weight: 900; }
+        .font-numero { font-family: 'Montserrat', sans-serif; font-weight: 800; }
+        .font-nombre { font-family: 'Montserrat', sans-serif; font-weight: 700; }
+        .font-etiqueta {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+        }
+        
+        .glass-strong {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #d946ef 0%, #6a1b9a 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(217, 70, 239, 0.4);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.4);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover { background: rgba(255, 255, 255, 0.2); }
+        
+        .btn-admin {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: #0a1931;
+            transition: all 0.3s ease;
+        }
+        .btn-admin:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(251, 191, 36, 0.4);
+        }
+        
+        .titulo-gradient {
+            background: linear-gradient(135deg, #d946ef 0%, #e879f9 50%, #fbbf24 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes scaleIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes rebotar {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .animate-fadeIn { animation: fadeIn 0.5s ease-out; }
+        .animate-scaleIn { animation: scaleIn 0.3s ease-out; }
+        .animate-slideDown { animation: slideDown 0.4s ease-out; }
+        .animate-rebotar { animation: rebotar 0.6s ease-in-out; }
+        
+        .input-custom {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px 20px;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        .input-custom:focus {
+            outline: none;
+            border-color: #d946ef;
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 20px rgba(217, 70, 239, 0.3);
+        }
+        .input-custom::placeholder { color: rgba(255, 255, 255, 0.4); }
+        .input-custom:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .radio-custom {
+            display: inline-flex;
+            align-items: center;
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        .radio-custom:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(217, 70, 239, 0.5);
+        }
+        .radio-custom input[type="radio"] { display: none; }
+        .radio-custom.selected {
+            background: linear-gradient(135deg, rgba(217, 70, 239, 0.3) 0%, rgba(106, 27, 154, 0.3) 100%);
+            border-color: #d946ef;
+            box-shadow: 0 0 20px rgba(217, 70, 239, 0.4);
+        }
+        
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .chip-success {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        .chip-danger {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981 0%, #fbbf24 100%);
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+        
+        .tabla-glass {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        .tabla-glass th {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px;
+            text-align: left;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.05em;
+        }
+        .tabla-glass td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .tabla-glass tr:hover td { background: rgba(255, 255, 255, 0.05); }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+        .modal-content {
+            background: rgba(21, 38, 66, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(217, 70, 239, 0.3);
+            border-radius: 20px;
+            padding: 32px;
+            max-width: 500px;
+            width: 90%;
+            animation: scaleIn 0.3s ease;
+        }
+        
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            z-index: 2000;
+            animation: slideDown 0.4s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        .toast-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .toast-danger { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+        .toast-info { background: linear-gradient(135deg, #d946ef 0%, #6a1b9a 100%); }
+        
+        .vista { display: none; }
+        .vista.activa { display: block; animation: fadeIn 0.5s ease; }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); }
+        ::-webkit-scrollbar-thumb { background: rgba(217, 70, 239, 0.5); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(217, 70, 239, 0.7); }
+        
+        .tarjeta-jugador {
+            background: linear-gradient(135deg, #0a1931 0%, #152642 50%, #6a1b9a 100%);
+            border: 2px solid rgba(217, 70, 239, 0.5);
+            border-radius: 20px;
+            padding: 32px;
+            color: white;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .tarjeta-jugador h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            background: linear-gradient(135deg, #d946ef 0%, #e879f9 50%, #fbbf24 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .tab-btn {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.05em;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .tab-btn.active {
+            background: linear-gradient(135deg, #d946ef 0%, #6a1b9a 100%);
+            border-color: #d946ef;
+            box-shadow: 0 0 20px rgba(217, 70, 239, 0.4);
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+        
+        .semaforo {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .semaforo-verde { background: #10b981; box-shadow: 0 0 20px #10b981; }
+        .semaforo-rojo { background: #ef4444; box-shadow: 0 0 20px #ef4444; }
+        .semaforo-amarillo { background: #fbbf24; box-shadow: 0 0 20px #fbbf24; }
+        
+        .nav-stadium {
+            position: sticky;
+            top: 16px;
+            z-index: 50;
+        }
+        
+        .mensaje-cerrado {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            color: #ef4444;
+            font-weight: 600;
+        }
+        
+        .modo-admin-indicador {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: #0a1931;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+    </style>
+</head>
+<body class="relative">
+    
+    <div id="app" class="relative z-10 min-h-screen p-4 md:p-8">
+        
+        <!-- VISTA 1: REGISTRO INICIAL -->
+        <div id="vista-registro" class="vista activa max-w-md mx-auto mt-20">
+            <div class="glass-strong p-8 text-center">
+                <h1 class="font-titulo text-4xl md:text-5xl titulo-gradient mb-4">
+                    4TOS DE FINAL
+                </h1>
+                <p class="text-white/70 mb-8 font-semibold">
+                    Mundial 2026 - Sistema de Pronosticos
+                </p>
+                
+                <div id="temporizador-container" class="glass p-4 mb-6">
+                    <p class="text-xs text-white/60 font-etiqueta mb-2">Primer partido inicia en:</p>
+                    <p id="temporizador" class="font-titulo text-3xl text-yellow-400">
+                        --:--:--
+                    </p>
+                </div>
+                
+                <div id="registro-form-container" class="mb-6">
+                    <div class="mb-6">
+                        <label class="block text-left text-sm font-semibold text-white/80 mb-2">
+                            Tu nombre de participacion
+                        </label>
+                        <input 
+                            type="text" 
+                            id="input-nombre" 
+                            class="input-custom" 
+                            placeholder="Ej: JUAN"
+                            maxlength="20"
+                            autocomplete="off"
+                        >
+                    </div>
+                    
+                    <div id="mensaje-sugerencia" class="hidden glass p-4 mb-6 animate-slideDown">
+                        <p class="text-sm text-yellow-400 font-semibold mb-2">
+                            Este nombre ya esta participando.
+                        </p>
+                        <p class="text-xs text-white/70 mb-3">
+                            Puedes usar una de estas opciones:
+                        </p>
+                        <div id="sugerencias-nombres" class="flex flex-wrap gap-2"></div>
+                    </div>
+                    
+                    <button 
+                        id="btn-participar" 
+                        class="btn-primary w-full py-4 rounded-xl font-titulo text-lg text-white shadow-lg"
+                    >
+                        PARTICIPAR
+                    </button>
+                </div>
+                
+                <div id="registro-cerrado-msg" class="hidden mensaje-cerrado mb-6">
+                    Las jugadas estan cerradas. Espera los resultados.
+                </div>
+                
+                <button 
+                    id="btn-admin-link" 
+                    class="mt-6 text-xs text-white/30 hover:text-white/60 transition-colors"
+                >
+                    admin
+                </button>
+            </div>
+        </div>
+        
+        <!-- VISTA 2: INSTRUCCIONES -->
+        <div id="vista-instrucciones" class="vista max-w-md mx-auto mt-20">
+            <div class="glass-strong p-8 text-center">
+                <div class="text-6xl mb-4">!</div>
+                <h2 class="font-titulo text-2xl titulo-gradient mb-6">
+                    IMPORTANTE
+                </h2>
+                <div class="glass p-6 mb-6 text-left">
+                    <p class="text-white/90 mb-4 font-semibold">
+                        Una vez guardado cada bloque, <span class="text-red-400">NO podras modificar tus respuestas</span>.
+                    </p>
+                    <p class="text-white/70 text-sm">
+                        Asegurate de elegir bien antes de confirmar. Cada acierto vale 1 punto.
+                    </p>
+                </div>
+                <button 
+                    id="btn-empezar" 
+                    class="btn-success w-full py-4 rounded-xl font-titulo text-lg text-white shadow-lg"
+                >
+                    ENTENDIDO, EMPEZAR
+                </button>
+            </div>
+        </div>
+        
+        <!-- VISTA 3: BLOQUE DE PARTIDO -->
+        <div id="vista-bloque" class="vista max-w-2xl mx-auto mt-8">
+            <div class="glass-strong p-6 md:p-8">
+                <div class="text-center mb-6">
+                    <div class="flex items-center justify-center gap-2 mb-2">
+                        <span class="chip bg-white/10">
+                            BLOQUE <span id="bloque-numero" class="font-numero text-yellow-400 ml-1">1</span> DE 4
+                        </span>
+                    </div>
+                    <h2 id="bloque-partido" class="font-titulo text-2xl md:text-3xl titulo-gradient mb-2">
+                        FRANCIA vs MARRUECOS
+                    </h2>
+                    <p id="bloque-fecha" class="text-sm text-white/60 font-semibold">
+                        Jue 09/07, 4:00 PM
+                    </p>
+                </div>
+                
+                <div class="progress-bar mb-8">
+                    <div id="progreso-fill" class="progress-fill" style="width: 25%"></div>
+                </div>
+                
+                <div id="preguntas-container" class="space-y-6 mb-8"></div>
+                
+                <button 
+                    id="btn-guardar-bloque" 
+                    class="btn-primary w-full py-4 rounded-xl font-titulo text-lg text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled
+                >
+                    GUARDAR SELECCIONES
+                </button>
+            </div>
+        </div>
+        
+        <!-- VISTA 4: RESUMEN FINAL -->
+        <div id="vista-resumen" class="vista max-w-2xl mx-auto mt-8">
+            <div class="glass-strong p-6 md:p-8 mb-6">
+                <div class="text-center mb-6">
+                    <div class="text-6xl mb-4 animate-rebotar">!</div>
+                    <h2 class="font-titulo text-3xl titulo-gradient mb-2">
+                        PARTICIPACION COMPLETA!
+                    </h2>
+                    <p class="text-white/70 font-semibold">
+                        <span id="resumen-nombre" class="text-yellow-400">JUAN</span>
+                    </p>
+                </div>
+                
+                <div id="resumen-selecciones" class="space-y-4 mb-8"></div>
+                
+                <div class="space-y-4">
+                    <button 
+                        id="btn-descargar-jpg" 
+                        class="btn-primary w-full py-4 rounded-xl font-titulo text-lg text-white shadow-lg"
+                    >
+                        DESCARGAR MI TARJETA JPG
+                    </button>
+                    <button 
+                        id="btn-volver-inicio" 
+                        class="btn-secondary w-full py-4 rounded-xl font-titulo text-lg text-white"
+                    >
+                        VOLVER AL INICIO
+                    </button>
+                </div>
+            </div>
+            
+            <div id="tarjeta-oculta" class="hidden">
+                <div id="tarjeta-jugador" class="tarjeta-jugador"></div>
+            </div>
+        </div>
+        
+        <!-- VISTA 5: STADIUM -->
+        <div id="vista-stadium" class="vista max-w-6xl mx-auto mt-8">
+            
+            <div class="glass-strong p-4 mb-6 flex items-center justify-between nav-stadium">
+                <button 
+                    id="btn-salir-stadium" 
+                    class="btn-secondary px-4 py-2 rounded-lg font-semibold text-sm flex items-center gap-2"
+                >
+                    SALIR
+                </button>
+                
+                <div class="flex items-center gap-2">
+                    <h2 class="font-titulo text-lg md:text-xl titulo-gradient hidden sm:block">
+                        4TOS DE FINAL
+                    </h2>
+                    <span id="modo-admin-badge" class="modo-admin-indicador hidden">ADMIN</span>
+                </div>
+                
+                <div class="flex items-center gap-2">
+                    <button 
+                        id="btn-ir-panel" 
+                        class="btn-admin px-4 py-2 rounded-lg font-semibold text-sm flex items-center gap-2 hidden"
+                    >
+                        PANEL
+                    </button>
+                    <button 
+                        id="btn-admin-stadium" 
+                        class="btn-secondary px-4 py-2 rounded-lg font-semibold text-sm flex items-center gap-2"
+                    >
+                        ADMIN
+                    </button>
+                </div>
+            </div>
+            
+            <div id="stadium-input-container" class="glass-strong p-6 mb-6">
+                <div class="flex flex-col md:flex-row gap-4 items-center">
+                    <div class="flex-1 w-full">
+                        <input 
+                            type="text" 
+                            id="input-nombre-stadium" 
+                            class="input-custom" 
+                            placeholder="Ingresa tu nombre para participar"
+                            maxlength="20"
+                            autocomplete="off"
+                        >
+                    </div>
+                    <button 
+                        id="btn-participar-stadium" 
+                        class="btn-primary px-8 py-4 rounded-xl font-titulo text-white shadow-lg whitespace-nowrap"
+                    >
+                        PARTICIPAR
+                    </button>
+                </div>
+            </div>
+            
+            <div id="stadium-cerrado-msg" class="hidden mensaje-cerrado mb-6">
+                Las jugadas estan cerradas. Espera los resultados del administrador.
+            </div>
+            
+            <div id="ranking-container" class="hidden glass-strong p-6 mb-6">
+                <h3 class="font-titulo text-2xl titulo-gradient mb-4 text-center">
+                    RANKING ACTUAL
+                </h3>
+                <div class="overflow-x-auto">
+                    <table class="tabla-glass">
+                        <thead>
+                            <tr>
+                                <th>Pos</th>
+                                <th>Nombre</th>
+                                <th>Pts</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ranking-body"></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="glass-strong p-6">
+                <h3 class="font-titulo text-2xl titulo-gradient mb-4 text-center">
+                    JUGADAS POR BLOQUE
+                </h3>
+                <div id="bloques-jugadas" class="space-y-4"></div>
+            </div>
+        </div>
+        
+        <!-- VISTA 6: LOGIN ADMIN -->
+        <div id="vista-admin-login" class="vista max-w-md mx-auto mt-20">
+            <div class="glass-strong p-8 text-center">
+                <div class="text-6xl mb-4">!</div>
+                <h2 class="font-titulo text-2xl titulo-gradient mb-6">
+                    ACCESO ADMINISTRADOR
+                </h2>
+                <div class="mb-6">
+                    <input 
+                        type="password" 
+                        id="input-password-admin" 
+                        class="input-custom text-center" 
+                        placeholder="Contrasena"
+                        autocomplete="off"
+                    >
+                </div>
+                <button 
+                    id="btn-login-admin" 
+                    class="btn-primary w-full py-4 rounded-xl font-titulo text-lg text-white shadow-lg"
+                >
+                    INGRESAR
+                </button>
+                <button 
+                    id="btn-volver-desde-admin" 
+                    class="mt-4 text-sm text-white/60 hover:text-white transition-colors"
+                >
+                    Volver
+                </button>
+            </div>
+        </div>
+        
+        <!-- VISTA 7: PANEL ADMIN -->
+        <div id="vista-admin-panel" class="vista max-w-6xl mx-auto mt-8">
+            <div class="glass-strong p-6 mb-6">
+                <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+                    <div class="flex items-center gap-3">
+                        <h2 class="font-titulo text-2xl titulo-gradient">
+                            PANEL ADMINISTRADOR
+                        </h2>
+                        <span class="modo-admin-indicador">ADMIN</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button 
+                            id="btn-ir-stadium" 
+                            class="btn-admin px-4 py-2 rounded-lg text-sm font-semibold"
+                        >
+                            STADIUM
+                        </button>
+                        <button 
+                            id="btn-salir-admin" 
+                            class="btn-secondary px-4 py-2 rounded-lg text-sm font-semibold"
+                        >
+                            Salir
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="flex flex-wrap gap-2 mb-6">
+                    <button class="tab-btn active" data-tab="resultados">RESULTADOS</button>
+                    <button class="tab-btn" data-tab="edicion">EDICION</button>
+                    <button class="tab-btn" data-tab="control">CONTROL</button>
+                </div>
+                
+                <div id="tab-resultados" class="tab-content active"></div>
+                <div id="tab-edicion" class="tab-content"></div>
+                <div id="tab-control" class="tab-content"></div>
+            </div>
+        </div>
+        
+    </div>
+    
+    <!-- MODAL CONFIRMAR -->
+    <div id="modal-confirmar" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="text-center">
+                <div class="text-6xl mb-4">!</div>
+                <h3 class="font-titulo text-2xl titulo-gradient mb-4">
+                    CONFIRMAR SELECCION
+                </h3>
+                <p class="text-white/80 mb-6">
+                    Estás seguro? <span class="text-red-400 font-bold">No podrás cambiar estas respuestas</span> después de guardar.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button 
+                        id="btn-modal-volver" 
+                        class="btn-secondary flex-1 py-3 rounded-xl font-semibold"
+                    >
+                        Volver a revisar
+                    </button>
+                    <button 
+                        id="btn-modal-confirmar" 
+                        class="btn-success flex-1 py-3 rounded-xl font-semibold"
+                    >
+                        Confirmar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="toast-container"></div>
+    
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-        import { getFirestore, collection, doc, setDoc, getDocs, updateDoc, query, where, getDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+        import { 
+            getFirestore, collection, doc, setDoc, getDoc, getDocs, 
+            updateDoc, deleteDoc, query, where, onSnapshot
+        } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
         
         const firebaseConfig = {
             apiKey: "AIzaSyAW-UUmligtli8aLJtWeVhM1QdE1tTx7kM",
@@ -25,1060 +728,1060 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         
-        window.db = db;
-        window.firestore = { collection, doc, setDoc, getDocs, updateDoc, query, where, getDoc };
-    </script>
-    
-    <!-- html2canvas para generar imágenes -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    
-    <style>
-        :root {
-            --color-primary: #1a1a2e;
-            --color-secondary: #16213e;
-            --color-accent: #0f3460;
-            --color-highlight: #e94560;
-            --color-gold: #f4c430;
-            --color-success: #10b981;
-            --color-text: #f1f5f9;
-        }
-        
-        body {
-            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: var(--color-text);
-            min-height: 100vh;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-30px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        
-        @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 20px rgba(233, 69, 96, 0.5); }
-            50% { box-shadow: 0 0 40px rgba(233, 69, 96, 0.8); }
-        }
-        
-        .fade-in { animation: fadeIn 0.6s ease-out; }
-        .slide-in { animation: slideIn 0.5s ease-out; }
-        .pulse-glow { animation: pulse-glow 2s infinite; }
-        
-        .card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            transition: all 0.3s ease;
-        }
-        
-        .card:hover {
-            background: rgba(255, 255, 255, 0.08);
-            transform: translateY(-4px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, var(--color-highlight) 0%, #c73650 100%);
-            transition: all 0.3s ease;
-        }
-        
-        .btn-primary:hover {
-            transform: scale(1.05);
-            box-shadow: 0 8px 25px rgba(233, 69, 96, 0.4);
-        }
-        
-        .btn-secondary {
-            background: linear-gradient(135deg, var(--color-accent) 0%, #0a2540 100%);
-            transition: all 0.3s ease;
-        }
-        
-        .btn-secondary:hover {
-            transform: scale(1.02);
-            box-shadow: 0 5px 15px rgba(15, 52, 96, 0.4);
-        }
-        
-        .table-custom {
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 12px;
-            overflow: hidden;
-        }
-        
-        .table-custom th {
-            background: rgba(233, 69, 96, 0.2);
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 0.05em;
-        }
-        
-        .table-custom tr { transition: background 0.2s ease; }
-        .table-custom tr:hover { background: rgba(255, 255, 255, 0.05); }
-        
-        .tab-btn {
-            transition: all 0.3s ease;
-            border-bottom: 3px solid transparent;
-        }
-        
-        .tab-btn.active {
-            border-bottom-color: var(--color-highlight);
-            color: var(--color-highlight);
-        }
-        
-        .tab-content {
-            display: none;
-            animation: fadeIn 0.4s ease-out;
-        }
-        
-        .tab-content.active { display: block; }
-        
-        .bloque-card {
-            background: linear-gradient(135deg, rgba(15, 52, 96, 0.3) 0%, rgba(26, 26, 46, 0.5) 100%);
-            border: 2px solid rgba(244, 196, 48, 0.2);
-        }
-        
-        .bloque-card:hover { border-color: rgba(244, 196, 48, 0.5); }
-        
-        .btn-sino {
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-        }
-        
-        .btn-si {
-            background: rgba(16, 185, 129, 0.2);
-            border-color: rgba(16, 185, 129, 0.5);
-        }
-        
-        .btn-si.selected {
-            background: var(--color-success);
-            border-color: var(--color-success);
-            transform: scale(1.05);
-        }
-        
-        .btn-no {
-            background: rgba(233, 69, 96, 0.2);
-            border-color: rgba(233, 69, 96, 0.5);
-        }
-        
-        .btn-no.selected {
-            background: var(--color-highlight);
-            border-color: var(--color-highlight);
-            transform: scale(1.05);
-        }
-        
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            padding: 16px 24px;
-            border-radius: 12px;
-            background: var(--color-success);
-            color: white;
-            font-weight: 600;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            z-index: 9999;
-            animation: slideIn 0.4s ease-out;
-        }
-        
-        .toast.error { background: var(--color-highlight); }
-        
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: var(--color-primary); }
-        ::-webkit-scrollbar-thumb { background: var(--color-accent); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--color-highlight); }
-        
-        .imagen-descarga {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            padding: 40px;
-            border-radius: 16px;
-            color: white;
-            width: 600px;
-        }
-        
-        /* ============================================ */
-        /* NUEVO: Estilos para el encabezado de equipos */
-        /* ============================================ */
-        .equipos-header {
-            background: linear-gradient(135deg, rgba(244, 196, 48, 0.1) 0%, rgba(233, 69, 96, 0.1) 100%);
-            border: 2px solid rgba(244, 196, 48, 0.3);
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 24px;
-        }
-        
-        .equipo-nombre {
-            font-size: 1.5rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-top: 8px;
-        }
-        
-        .vs-text {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--color-gold);
-            text-shadow: 0 0 10px rgba(244, 196, 48, 0.5);
-        }
-        
-        .bandera-grande {
-            font-size: 4rem;
-            display: block;
-            margin-bottom: 8px;
-            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
-        }
-        
-        .bloque-info {
-            text-align: center;
-            margin-top: 16px;
-            padding-top: 16px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-    </style>
-</head>
-<body class="pb-20">
-    
-    <!-- NAVBAR -->
-    <nav class="fixed top-0 left-0 right-0 z-50 bg-opacity-95 backdrop-blur-md" style="background: rgba(26, 26, 46, 0.95);">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center space-x-3">
-                    <span class="text-2xl">⚽</span>
-                    <h1 class="text-xl sm:text-2xl font-bold bg-gradient-to-r from-red-400 to-yellow-400 bg-clip-text text-transparent">
-                        4tos de Final
-                    </h1>
-                </div>
-                <div class="flex space-x-4 sm:space-x-6">
-                    <a href="#inicio" class="nav-link text-sm sm:text-base hover:text-red-400 transition-colors">Inicio</a>
-                    <a href="#ranking" class="nav-link text-sm sm:text-base hover:text-red-400 transition-colors">Ranking</a>
-                    <a href="#admin" class="nav-link text-sm sm:text-base hover:text-red-400 transition-colors">Admin</a>
-                </div>
-            </div>
-        </div>
-    </nav>
-    
-    <!-- HERO SECTION -->
-    <section id="inicio" class="pt-24 pb-12 px-4">
-        <div class="max-w-4xl mx-auto text-center fade-in">
-            <div class="card p-8 sm:p-12">
-                <h2 class="text-3xl sm:text-5xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-red-400 bg-clip-text text-transparent">
-                    Ingresa a la Jugada
-                </h2>
-                <p class="text-lg sm:text-xl text-gray-300 mb-8">
-                    Predice los resultados de los 4tos de Final y gana hasta <span class="text-yellow-400 font-bold">16 puntos</span>
-                </p>
-                <button id="btnParticipar" class="btn-primary text-white font-bold py-4 px-12 rounded-full text-lg sm:text-xl pulse-glow">
-                    PARTICIPAR
-                </button>
-            </div>
-        </div>
-    </section>
-    
-    <!-- MODAL DE NOMBRE -->
-    <div id="modalNombre" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm">
-        <div class="card p-8 max-w-md w-full mx-4 fade-in">
-            <h3 class="text-2xl font-bold mb-4 text-center">¿Cuál es tu nombre?</h3>
-            <input type="text" id="inputNombre" placeholder="Ingresa tu nombre" 
-                   class="w-full px-4 py-3 rounded-lg bg-white bg-opacity-10 border border-white border-opacity-20 text-white placeholder-gray-400 focus:outline-none focus:border-red-400 transition-colors">
-            <div class="flex space-x-3 mt-6">
-                <button id="btnCancelarNombre" class="btn-secondary flex-1 py-3 rounded-lg font-semibold">Cancelar</button>
-                <button id="btnConfirmarNombre" class="btn-primary flex-1 py-3 rounded-lg font-semibold">Continuar</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- SECCIÓN DE BLOQUES (JUEGO) -->
-    <section id="seccionJuego" class="hidden px-4 pb-12">
-        <div class="max-w-4xl mx-auto">
-            <div id="contenedorBloques"></div>
-        </div>
-    </section>
-    
-    <!-- RESUMEN FINAL -->
-    <section id="seccionResumen" class="hidden px-4 pb-12">
-        <div class="max-w-4xl mx-auto">
-            <div class="card p-8 fade-in">
-                <h3 class="text-3xl font-bold mb-6 text-center">¡Jugada Completada!</h3>
-                <div id="resumenJugadas"></div>
-                <button id="btnDescargarImagen" class="btn-primary w-full mt-6 py-4 rounded-lg font-bold text-lg">
-                    📥 Descargar mi Imagen
-                </button>
-            </div>
-        </div>
-    </section>
-    
-    <!-- REGLAMENTO -->
-    <section class="px-4 pb-12">
-        <div class="max-w-4xl mx-auto">
-            <div class="card p-6 sm:p-8 fade-in">
-                <h3 class="text-2xl font-bold mb-4 flex items-center">
-                    <span class="mr-2">📋</span> Reglamento de Puntuación
-                </h3>
-                <ul class="space-y-2 text-gray-300">
-                    <li class="flex items-start">
-                        <span class="text-green-400 mr-2">✓</span>
-                        <span><strong>1 punto</strong> por cada acierto en las preguntas Sí/No</span>
-                    </li>
-                    <li class="flex items-start">
-                        <span class="text-green-400 mr-2">✓</span>
-                        <span><strong>4 bloques</strong> con 4 preguntas cada uno = máximo <strong>16 puntos</strong></span>
-                    </li>
-                    <li class="flex items-start">
-                        <span class="text-green-400 mr-2">✓</span>
-                        <span>Los bloques se desbloquean uno a uno al completar el anterior</span>
-                    </li>
-                    <li class="flex items-start">
-                        <span class="text-green-400 mr-2">✓</span>
-                        <span>Al completar todos los bloques, podrás descargar tu imagen personalizada</span>
-                    </li>
-                    <li class="flex items-start">
-                        <span class="text-green-400 mr-2">✓</span>
-                        <span>Los empates en el ranking: ¡todos son ganadores!</span>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </section>
-    
-    <!-- RANKING -->
-    <section id="ranking" class="px-4 pb-12">
-        <div class="max-w-6xl mx-auto">
-            <h3 class="text-3xl font-bold mb-6 text-center">
-                <span class="mr-2">🏆</span> Tabla de Posiciones
-            </h3>
-            
-            <div class="card p-6 mb-6 fade-in">
-                <h4 class="text-xl font-bold mb-4">Tabla de Transparencia (Selecciones)</h4>
-                <div class="overflow-x-auto">
-                    <table class="table-custom w-full text-sm">
-                        <thead>
-                            <tr>
-                                <th class="px-4 py-3 text-left">Nombre</th>
-                                <th class="px-4 py-3 text-center">Bloque 1</th>
-                                <th class="px-4 py-3 text-center">Bloque 2</th>
-                                <th class="px-4 py-3 text-center">Bloque 3</th>
-                                <th class="px-4 py-3 text-center">Bloque 4</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tablaTransparencia"></tbody>
-                    </table>
-                </div>
-            </div>
-            
-            <div class="card p-6 fade-in">
-                <h4 class="text-xl font-bold mb-4">Ranking General con Puntaje</h4>
-                <div class="overflow-x-auto">
-                    <table class="table-custom w-full text-sm">
-                        <thead>
-                            <tr>
-                                <th class="px-4 py-3 text-left">Nombre</th>
-                                <th class="px-4 py-3 text-center">B1</th>
-                                <th class="px-4 py-3 text-center">Pts</th>
-                                <th class="px-4 py-3 text-center">B2</th>
-                                <th class="px-4 py-3 text-center">Pts</th>
-                                <th class="px-4 py-3 text-center">B3</th>
-                                <th class="px-4 py-3 text-center">Pts</th>
-                                <th class="px-4 py-3 text-center">B4</th>
-                                <th class="px-4 py-3 text-center">Pts</th>
-                                <th class="px-4 py-3 text-center font-bold">Total</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tablaRanking"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </section>
-    
-    <!-- PANEL ADMIN -->
-    <section id="admin" class="px-4 pb-12">
-        <div class="max-w-6xl mx-auto">
-            <div class="card p-6 sm:p-8 fade-in">
-                <h3 class="text-2xl font-bold mb-6 flex items-center">
-                    <span class="mr-2">🔐</span> Panel de Administrador
-                </h3>
-                
-                <div id="adminLogin" class="mb-6">
-                    <input type="password" id="inputClaveAdmin" placeholder="Ingresa la clave" 
-                           class="w-full px-4 py-3 rounded-lg bg-white bg-opacity-10 border border-white border-opacity-20 text-white placeholder-gray-400 focus:outline-none focus:border-red-400 transition-colors">
-                    <button id="btnAccederAdmin" class="btn-primary mt-3 w-full py-3 rounded-lg font-semibold">Acceder</button>
-                </div>
-                
-                <div id="panelAdmin" class="hidden">
-                    <div class="flex flex-wrap border-b border-white border-opacity-20 mb-6">
-                        <button class="tab-btn active px-4 py-2 font-semibold" data-tab="config">Configuración</button>
-                        <button class="tab-btn px-4 py-2 font-semibold" data-tab="resultados">Resultados</button>
-                        <button class="tab-btn px-4 py-2 font-semibold" data-tab="editar">Editar Jugada</button>
-                        <button class="tab-btn px-4 py-2 font-semibold" data-tab="exportar">Exportar</button>
-                    </div>
-                    
-                    <div id="tab-config" class="tab-content active">
-                        <h4 class="text-xl font-bold mb-4">Configuración del Juego</h4>
-                        <button id="btnCerrarJugadas" class="btn-primary px-6 py-3 rounded-lg font-semibold">
-                            🔒 Cerrar Jugadas
-                        </button>
-                        <p class="text-gray-400 mt-3 text-sm">Esto bloqueará las apuestas y habilitará la tabla general</p>
-                    </div>
-                    
-                    <div id="tab-resultados" class="tab-content">
-                        <h4 class="text-xl font-bold mb-4">Carga de Resultados</h4>
-                        <div id="contenedorResultados"></div>
-                        <button id="btnProcesarResultados" class="btn-primary mt-4 px-6 py-3 rounded-lg font-semibold">
-                            Procesar Resultados y Puntuar
-                        </button>
-                        <button id="btnCopiarWhatsApp" class="btn-secondary mt-3 px-6 py-3 rounded-lg font-semibold">
-                            📋 Copiar formato para WhatsApp
-                        </button>
-                    </div>
-                    
-                    <div id="tab-editar" class="tab-content">
-                        <h4 class="text-xl font-bold mb-4">Gestión de Participantes</h4>
-                        <div id="listaParticipantes"></div>
-                    </div>
-                    
-                    <div id="tab-exportar" class="tab-content">
-                        <h4 class="text-xl font-bold mb-4">Exportar y Compartir</h4>
-                        <button id="btnCopiarRanking" class="btn-primary px-6 py-3 rounded-lg font-semibold">
-                            📋 Copiar Ranking al portapapeles
-                        </button>
-                        <button id="btnDescargarPDF" class="btn-secondary mt-3 px-6 py-3 rounded-lg font-semibold">
-                            📄 Descargar Ranking en PDF
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    
-    <div id="contenedorImagen" class="hidden"></div>
-    
-    <script>
-        const bloquesData = [
+        const PARTIDOS = [
             {
-                id: 1,
-                equipo1: "Francia",
-                equipo2: "Marruecos",
-                bandera1: "🇫🇷",
-                bandera2: "🇲🇦",
-                fecha: "Jueves 9 de julio de 2026, 4:00 p.m.",
+                numero: 1, local: "Francia", visitante: "Marruecos",
+                fecha: "2026-07-09T16:00:00", fechaTexto: "Jue 09/07, 4:00 PM",
                 preguntas: [
-                    "Empate 0-0 en 90'",
-                    "A Francia le anulan al menos un gol en el partido",
-                    "Penal en 1T",
-                    "Gol antes min 15'"
+                    { id: "p1", texto: "Empate 0-0 en 90?" },
+                    { id: "p2", texto: "A Francia le anulan al menos un gol en el partido?" },
+                    { id: "p3", texto: "Penal en 1T?" },
+                    { id: "p4", texto: "Gol antes min 15?" }
                 ]
             },
             {
-                id: 2,
-                equipo1: "España",
-                equipo2: "Bélgica",
-                bandera1: "🇪🇸",
-                bandera2: "🇧🇪",
-                fecha: "Viernes 10 de julio de 2026, 3:00 p.m.",
+                numero: 2, local: "España", visitante: "Belgica",
+                fecha: "2026-07-10T15:00:00", fechaTexto: "Vie 10/07, 3:00 PM",
                 preguntas: [
-                    "Más de 5 goles en 90'",
-                    "Ambos marcan al descanso",
-                    "BEL anota en ambas mitades",
-                    "ESP anota primero"
+                    { id: "p1", texto: "Mas de 5 goles en 90?" },
+                    { id: "p2", texto: "Ambos marcan al descanso?" },
+                    { id: "p3", texto: "BEL anota en ambas mitades?" },
+                    { id: "p4", texto: "ESP anota primero?" }
                 ]
             },
             {
-                id: 3,
-                equipo1: "Noruega",
-                equipo2: "Inglaterra",
-                bandera1: "🇳🇴",
-                bandera2: "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
-                fecha: "Sábado 11 de julio de 2026, 5:00 p.m.",
+                numero: 3, local: "Noruega", visitante: "Inglaterra",
+                fecha: "2026-07-11T17:00:00", fechaTexto: "Sab 11/07, 5:00 PM",
                 preguntas: [
-                    "Haaland anota 2+ goles 90'",
-                    "ING gana sin recibir goles",
-                    "Empate en 90'",
-                    "2T menos goles que 1T"
+                    { id: "p1", texto: "Haaland anota 2+ goles 90?" },
+                    { id: "p2", texto: "ING gana sin recibir goles?" },
+                    { id: "p3", texto: "Empate en 90?" },
+                    { id: "p4", texto: "2T menos goles que 1T?" }
                 ]
             },
             {
-                id: 4,
-                equipo1: "Argentina",
-                equipo2: "Suiza",
-                bandera1: "🇦🇷",
-                bandera2: "🇨🇭",
-                fecha: "Sábado 11 de julio de 2026, 9:00 p.m.",
+                numero: 4, local: "Argentina", visitante: "Suiza",
+                fecha: "2026-07-11T21:00:00", fechaTexto: "Sab 11/07, 9:00 PM",
                 preguntas: [
-                    "Se define en penales",
-                    "SUI gana 1-0 en 90'",
-                    "ARG pierde al descanso",
-                    "ARG anota primero"
+                    { id: "p1", texto: "Se define en penales?" },
+                    { id: "p2", texto: "SUI gana 1-0 en 90?" },
+                    { id: "p3", texto: "ARG pierde al descanso?" },
+                    { id: "p4", texto: "ARG anota primero?" }
                 ]
             }
         ];
-
-        let usuarioActual = null;
-        let jugadasUsuario = {};
-        let bloqueActual = 1;
-        let jugadasCerradas = false;
-
-        document.addEventListener('DOMContentLoaded', () => {
-            inicializarEventos();
-            cargarRanking();
-            verificarEstadoJugadas();
-        });
-
-        function inicializarEventos() {
-            document.getElementById('btnParticipar').addEventListener('click', () => {
-                document.getElementById('modalNombre').classList.remove('hidden');
-            });
-
-            document.getElementById('btnCancelarNombre').addEventListener('click', () => {
-                document.getElementById('modalNombre').classList.add('hidden');
-            });
-
-            document.getElementById('btnConfirmarNombre').addEventListener('click', confirmarNombre);
-            document.getElementById('btnAccederAdmin').addEventListener('click', accederAdmin);
-
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                    btn.classList.add('active');
-                    document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
-                });
-            });
-
-            document.getElementById('btnCerrarJugadas').addEventListener('click', cerrarJugadas);
-            document.getElementById('btnProcesarResultados').addEventListener('click', procesarResultados);
-            document.getElementById('btnCopiarWhatsApp').addEventListener('click', copiarWhatsApp);
-            document.getElementById('btnCopiarRanking').addEventListener('click', copiarRanking);
-            document.getElementById('btnDescargarPDF').addEventListener('click', descargarPDF);
-            document.getElementById('btnDescargarImagen').addEventListener('click', descargarImagenUsuario);
+        
+        const estado = {
+            usuarioActual: null,
+            bloqueActual: 1,
+            respuestasTemporales: {},
+            modoAdmin: false
+        };
+        
+        function respuestasIguales(a, b) {
+            if ((a === null || a === undefined) && (b === null || b === undefined)) return true;
+            if (a === null || a === undefined || b === null || b === undefined) return false;
+            
+            const normalizar = s => {
+                return s.toString()
+                    .toLowerCase()
+                    .trim()
+                    .normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, '')
+                    .replace(/\s+/g, '');
+            };
+            
+            return normalizar(a) === normalizar(b);
         }
-
-        async function confirmarNombre() {
-            const nombre = document.getElementById('inputNombre').value.trim();
-            if (!nombre) {
-                mostrarToast('Por favor ingresa tu nombre', 'error');
+        
+        function mostrarVista(idVista) {
+            document.querySelectorAll('.vista').forEach(v => v.classList.remove('activa'));
+            document.getElementById(idVista).classList.add('activa');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        function mostrarToast(mensaje, tipo = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${tipo}`;
+            toast.textContent = mensaje;
+            document.getElementById('toast-container').appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'fadeIn 0.3s ease reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+        
+        function reproducirSonido(tipo) {
+            try {
+                const context = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = context.createOscillator();
+                const gainNode = context.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(context.destination);
+                if (tipo === 'clic') {
+                    oscillator.frequency.value = 800;
+                    gainNode.gain.setValueAtTime(0.3, context.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.1);
+                    oscillator.start(context.currentTime);
+                    oscillator.stop(context.currentTime + 0.1);
+                } else if (tipo === 'trompeta') {
+                    oscillator.frequency.value = 440;
+                    oscillator.type = 'sawtooth';
+                    gainNode.gain.setValueAtTime(0.3, context.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.5);
+                    oscillator.start(context.currentTime);
+                    oscillator.stop(context.currentTime + 0.5);
+                }
+            } catch(e) { console.log('Audio no soportado'); }
+        }
+        
+        function actualizarVisibilidadAdmin() {
+            const btnIrPanel = document.getElementById('btn-ir-panel');
+            const modoAdminBadge = document.getElementById('modo-admin-badge');
+            const btnAdminStadium = document.getElementById('btn-admin-stadium');
+            
+            if (estado.modoAdmin) {
+                if (btnIrPanel) btnIrPanel.classList.remove('hidden');
+                if (modoAdminBadge) modoAdminBadge.classList.remove('hidden');
+                if (btnAdminStadium) btnAdminStadium.classList.add('hidden');
+            } else {
+                if (btnIrPanel) btnIrPanel.classList.add('hidden');
+                if (modoAdminBadge) modoAdminBadge.classList.add('hidden');
+                if (btnAdminStadium) btnAdminStadium.classList.remove('hidden');
+            }
+        }
+        
+        let yaCerroAutomaticamente = false;
+        
+        function actualizarTemporizador() {
+            const primerPartido = new Date(PARTIDOS[0].fecha);
+            const ahora = new Date();
+            const diferencia = primerPartido - ahora;
+            
+            if (diferencia <= 0) {
+                document.getElementById('temporizador').textContent = 'EN VIVO!';
+                document.getElementById('temporizador').classList.add('text-red-400');
+                if (!yaCerroAutomaticamente) {
+                    yaCerroAutomaticamente = true;
+                    cerrarJugadasAutomaticamente();
+                }
                 return;
             }
-
-            const nombreFinal = await verificarNombreUnico(nombre);
-            usuarioActual = nombreFinal;
-
-            document.getElementById('modalNombre').classList.add('hidden');
-            document.getElementById('inicio').classList.add('hidden');
-            document.getElementById('seccionJuego').classList.remove('hidden');
-
-            mostrarBloque(1);
-        }
-
-        async function verificarNombreUnico(nombre) {
-            const db = window.db;
-            const { collection, getDocs } = window.firestore;
-            const querySnapshot = await getDocs(collection(db, 'participantes'));
             
-            let nombreFinal = nombre;
-            let contador = 2;
-            const nombresExistentes = [];
-
-            querySnapshot.forEach(doc => {
-                nombresExistentes.push(doc.data().nombre);
-            });
-
-            while (nombresExistentes.includes(nombreFinal)) {
-                nombreFinal = `${nombre}_${String(contador).padStart(2, '0')}`;
-                contador++;
+            const horas = Math.floor(diferencia / (1000 * 60 * 60));
+            const minutos = Math.floor((diferencia % (1000 * 60 * 60)) / (1000 * 60));
+            const segundos = Math.floor((diferencia % (1000 * 60)) / 1000);
+            
+            document.getElementById('temporizador').textContent = 
+                `${String(horas).padStart(2, '0')}:${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}`;
+        }
+        
+        async function cerrarJugadasAutomaticamente() {
+            try {
+                const configDoc = await getDoc(doc(db, 'config', 'global'));
+                const config = configDoc.data();
+                if (config.estadoApp === 'ABIERTO') {
+                    await updateDoc(doc(db, 'config', 'global'), { estadoApp: 'CERRADO' });
+                    mostrarToast('Las jugadas se han cerrado automaticamente', 'info');
+                }
+            } catch (error) {
+                console.error('Error al cerrar automaticamente:', error);
             }
-
-            return nombreFinal;
         }
-
-        function mostrarBloque(numBloque) {
-            const bloque = bloquesData[numBloque - 1];
-            const contenedor = document.getElementById('contenedorBloques');
+        
+        setInterval(actualizarTemporizador, 1000);
+        actualizarTemporizador();
+        
+        async function inicializarFirestore() {
+            try {
+                const configDoc = await getDoc(doc(db, 'config', 'global'));
+                if (!configDoc.exists()) {
+                    await setDoc(doc(db, 'config', 'global'), {
+                        estadoApp: 'ABIERTO',
+                        fechaPrimerPartido: PARTIDOS[0].fecha,
+                        contrasenaAdmin: '111180'
+                    });
+                }
+                const partidosSnapshot = await getDocs(collection(db, 'partidos'));
+                if (partidosSnapshot.empty) {
+                    for (const partido of PARTIDOS) {
+                        await setDoc(doc(db, 'partidos', `bloque_${partido.numero}`), {
+                            numero: partido.numero,
+                            equipoLocal: partido.local,
+                            equipoVisitante: partido.visitante,
+                            fecha: partido.fecha,
+                            fechaTexto: partido.fechaTexto,
+                            preguntas: partido.preguntas,
+                            resultadosOficiales: { p1: null, p2: null, p3: null, p4: null },
+                            estado: 'PENDIENTE'
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error inicializando Firestore:', error);
+            }
+        }
+        
+        inicializarFirestore();
+        
+        const inputNombre = document.getElementById('input-nombre');
+        const btnParticipar = document.getElementById('btn-participar');
+        const mensajeSugerencia = document.getElementById('mensaje-sugerencia');
+        const sugerenciasNombres = document.getElementById('sugerencias-nombres');
+        
+        inputNombre.addEventListener('input', () => {
+            mensajeSugerencia.classList.add('hidden');
+        });
+        
+        btnParticipar.addEventListener('click', async () => {
+            const nombre = inputNombre.value.trim().toUpperCase();
+            if (!nombre) {
+                mostrarToast('Por favor ingresa tu nombre', 'danger');
+                return;
+            }
             
-            contenedor.innerHTML = `
-                <div class="bloque-card card p-6 sm:p-8 fade-in">
-                    <!-- ============================================ -->
-                    <!-- NUEVO: ENCABEZADO CON EQUIPOS Y BANDERAS     -->
-                    <!-- ============================================ -->
-                    <div class="equipos-header">
-                        <div class="flex items-center justify-center space-x-6 sm:space-x-12">
-                            <div class="text-center">
-                                <span class="bandera-grande">${bloque.bandera1}</span>
-                                <p class="equipo-nombre text-yellow-400">${bloque.equipo1}</p>
-                            </div>
-                            <div class="text-center">
-                                <span class="vs-text">VS</span>
-                            </div>
-                            <div class="text-center">
-                                <span class="bandera-grande">${bloque.bandera2}</span>
-                                <p class="equipo-nombre text-red-400">${bloque.equipo2}</p>
-                            </div>
-                        </div>
-                        <div class="bloque-info">
-                            <p class="text-gray-300 text-sm">${bloque.fecha}</p>
-                            <p class="text-xs text-yellow-400 mt-2 font-semibold uppercase tracking-wider">Bloque ${numBloque} de 4</p>
-                        </div>
+            try {
+                const participantesSnapshot = await getDocs(collection(db, 'participantes'));
+                const nombresExistentes = [];
+                participantesSnapshot.forEach(doc => {
+                    nombresExistentes.push(doc.data().nombre);
+                });
+                
+                if (nombresExistentes.includes(nombre)) {
+                    mensajeSugerencia.classList.remove('hidden');
+                    sugerenciasNombres.innerHTML = '';
+                    for (let i = 2; i <= 4; i++) {
+                        const nombreSugerido = `${nombre}_${String(i).padStart(2, '0')}`;
+                        if (!nombresExistentes.includes(nombreSugerido)) {
+                            const btn = document.createElement('button');
+                            btn.className = 'chip cursor-pointer hover:bg-white/20 transition-colors';
+                            btn.textContent = nombreSugerido;
+                            btn.addEventListener('click', () => {
+                                inputNombre.value = nombreSugerido;
+                                mensajeSugerencia.classList.add('hidden');
+                            });
+                            sugerenciasNombres.appendChild(btn);
+                        }
+                    }
+                    mostrarToast('Este nombre ya esta en uso', 'danger');
+                    return;
+                }
+                
+                const querySesion = query(
+                    collection(db, 'participantes'),
+                    where('nombre', '==', nombre),
+                    where('estado', '==', 'EN_PROGRESO')
+                );
+                const sesionSnapshot = await getDocs(querySesion);
+                if (!sesionSnapshot.empty) {
+                    mostrarToast('Este nombre esta en uso por otro dispositivo', 'danger');
+                    return;
+                }
+                
+                const timestamp = Date.now();
+                const idParticipante = `${nombre.toLowerCase().replace(/\s+/g, '_')}_${timestamp}`;
+                
+                await setDoc(doc(db, 'participantes', idParticipante), {
+                    nombre: nombre,
+                    estado: 'EN_PROGRESO',
+                    timestamp: timestamp,
+                    respuestas: {},
+                    puntajes: {}
+                });
+                
+                estado.usuarioActual = { id: idParticipante, nombre: nombre };
+                localStorage.setItem('usuarioActual', JSON.stringify(estado.usuarioActual));
+                
+                mostrarToast('Bienvenido!', 'success');
+                reproducirSonido('clic');
+                mostrarVista('vista-instrucciones');
+            } catch (error) {
+                console.error('Error al registrar:', error);
+                mostrarToast('Error al registrar', 'danger');
+            }
+        });
+        
+        document.getElementById('btn-empezar').addEventListener('click', () => {
+            estado.bloqueActual = 1;
+            estado.respuestasTemporales = {};
+            cargarBloque(1);
+            mostrarVista('vista-bloque');
+        });
+        
+        function cargarBloque(numero) {
+            const partido = PARTIDOS[numero - 1];
+            document.getElementById('bloque-numero').textContent = numero;
+            document.getElementById('bloque-partido').textContent = `${partido.local} vs ${partido.visitante}`;
+            document.getElementById('bloque-fecha').textContent = partido.fechaTexto;
+            document.getElementById('progreso-fill').style.width = `${(numero / 4) * 100}%`;
+            
+            const preguntasContainer = document.getElementById('preguntas-container');
+            preguntasContainer.innerHTML = '';
+            
+            partido.preguntas.forEach((pregunta, index) => {
+                const preguntaDiv = document.createElement('div');
+                preguntaDiv.className = 'glass p-6';
+                preguntaDiv.innerHTML = `
+                    <p class="font-semibold text-white/90 mb-4">
+                        <span class="text-yellow-400 font-numero">${index + 1}.</span> ${pregunta.texto}
+                    </p>
+                    <div class="flex flex-wrap gap-3">
+                        <label class="radio-custom" data-pregunta="${pregunta.id}" data-respuesta="Si">
+                            <input type="radio" name="pregunta_${pregunta.id}" value="Si">
+                            <span>Si</span>
+                        </label>
+                        <label class="radio-custom" data-pregunta="${pregunta.id}" data-respuesta="No">
+                            <input type="radio" name="pregunta_${pregunta.id}" value="No">
+                            <span>No</span>
+                        </label>
                     </div>
-                    
-                    <div class="space-y-4">
-                        ${bloque.preguntas.map((pregunta, idx) => `
-                            <div class="bg-white bg-opacity-5 p-4 rounded-lg">
-                                <p class="font-semibold mb-3">${idx + 1}. ${pregunta}</p>
-                                <div class="flex space-x-3">
-                                    <button class="btn-sino btn-si flex-1" data-bloque="${numBloque}" data-pregunta="${idx}" data-respuesta="true">
-                                        SÍ
-                                    </button>
-                                    <button class="btn-sino btn-no flex-1" data-bloque="${numBloque}" data-pregunta="${idx}" data-respuesta="false">
-                                        NO
-                                    </button>
-                                </div>
+                `;
+                preguntasContainer.appendChild(preguntaDiv);
+            });
+            
+            document.querySelectorAll('#preguntas-container .radio-custom').forEach(label => {
+                label.addEventListener('click', () => {
+                    const preguntaId = label.dataset.pregunta;
+                    const respuesta = label.dataset.respuesta;
+                    document.querySelectorAll(`.radio-custom[data-pregunta="${preguntaId}"]`).forEach(l => {
+                        l.classList.remove('selected');
+                    });
+                    label.classList.add('selected');
+                    label.querySelector('input').checked = true;
+                    estado.respuestasTemporales[`bloque_${numero}`] = estado.respuestasTemporales[`bloque_${numero}`] || {};
+                    estado.respuestasTemporales[`bloque_${numero}`][preguntaId] = respuesta;
+                    verificarCompletitud();
+                    reproducirSonido('clic');
+                });
+            });
+            
+            document.getElementById('btn-guardar-bloque').disabled = true;
+        }
+        
+        function verificarCompletitud() {
+            const bloqueActual = estado.bloqueActual;
+            const respuestasBloque = estado.respuestasTemporales[`bloque_${bloqueActual}`] || {};
+            const preguntas = PARTIDOS[bloqueActual - 1].preguntas;
+            const todasRespondidas = preguntas.every(p => respuestasBloque[p.id]);
+            document.getElementById('btn-guardar-bloque').disabled = !todasRespondidas;
+        }
+        
+        document.getElementById('btn-guardar-bloque').addEventListener('click', () => {
+            document.getElementById('modal-confirmar').classList.remove('hidden');
+        });
+        
+        document.getElementById('btn-modal-volver').addEventListener('click', () => {
+            document.getElementById('modal-confirmar').classList.add('hidden');
+        });
+        
+        document.getElementById('btn-modal-confirmar').addEventListener('click', async () => {
+            document.getElementById('modal-confirmar').classList.add('hidden');
+            try {
+                const participanteRef = doc(db, 'participantes', estado.usuarioActual.id);
+                await updateDoc(participanteRef, {
+                    [`respuestas.bloque_${estado.bloqueActual}`]: estado.respuestasTemporales[`bloque_${estado.bloqueActual}`]
+                });
+                mostrarToast(`Bloque ${estado.bloqueActual} guardado`, 'success');
+                reproducirSonido('clic');
+                estado.bloqueActual++;
+                if (estado.bloqueActual > 4) {
+                    await completarParticipacion();
+                } else {
+                    cargarBloque(estado.bloqueActual);
+                }
+            } catch (error) {
+                console.error('Error al guardar:', error);
+                mostrarToast('Error al guardar', 'danger');
+            }
+        });
+        
+        async function completarParticipacion() {
+            try {
+                await updateDoc(doc(db, 'participantes', estado.usuarioActual.id), {
+                    estado: 'COMPLETADO'
+                });
+                mostrarResumen();
+                mostrarVista('vista-resumen');
+            } catch (error) {
+                console.error('Error al completar:', error);
+            }
+        }
+        
+        function mostrarResumen() {
+            document.getElementById('resumen-nombre').textContent = estado.usuarioActual.nombre;
+            const resumenContainer = document.getElementById('resumen-selecciones');
+            resumenContainer.innerHTML = '';
+            PARTIDOS.forEach((partido, index) => {
+                const bloqueNum = index + 1;
+                const respuestas = estado.respuestasTemporales[`bloque_${bloqueNum}`] || {};
+                const bloqueDiv = document.createElement('div');
+                bloqueDiv.className = 'glass p-4';
+                bloqueDiv.innerHTML = `
+                    <h4 class="font-semibold text-yellow-400 mb-3">
+                        BLOQUE ${bloqueNum}: ${partido.local} vs ${partido.visitante}
+                    </h4>
+                    <div class="space-y-2">
+                        ${partido.preguntas.map((p, i) => `
+                            <div class="flex items-center gap-2 text-sm">
+                                <span class="text-white/60">${i + 1}.</span>
+                                <span class="text-white/80 flex-1">${p.texto}</span>
+                                <span class="chip ${respuestasIguales(respuestas[p.id], 'Si') ? 'chip-success' : 'chip-danger'}">
+                                    ${respuestas[p.id] || '—'}
+                                </span>
                             </div>
                         `).join('')}
                     </div>
-                    
-                    <button id="btnEnviarBloque" class="btn-primary w-full mt-6 py-4 rounded-lg font-bold text-lg" disabled>
-                        Enviar Bloque ${numBloque}
-                    </button>
-                </div>
-            `;
-
-            contenedor.querySelectorAll('.btn-sino').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const bloque = btn.dataset.bloque;
-                    const pregunta = btn.dataset.pregunta;
-                    const respuesta = btn.dataset.respuesta === 'true';
-
-                    const hermanos = btn.parentElement.querySelectorAll('.btn-sino');
-                    hermanos.forEach(b => b.classList.remove('selected'));
-                    btn.classList.add('selected');
-
-                    if (!jugadasUsuario[bloque]) jugadasUsuario[bloque] = [];
-                    jugadasUsuario[bloque][pregunta] = respuesta;
-
-                    verificarBloqueCompleto(bloque);
+                `;
+                resumenContainer.appendChild(bloqueDiv);
+            });
+        }
+        
+        document.getElementById('btn-descargar-jpg').addEventListener('click', async () => {
+            try {
+                const tarjetaDiv = document.getElementById('tarjeta-jugador');
+                tarjetaDiv.innerHTML = `
+                    <h2 class="text-3xl mb-2">4TOS DE FINAL</h2>
+                    <p class="text-white/70 mb-6">Mundial 2026 - Tarjeta de Participacion</p>
+                    <div class="glass p-4 mb-4">
+                        <p class="text-sm text-white/60 mb-1">JUGADOR</p>
+                        <p class="text-2xl font-bold text-yellow-400">${estado.usuarioActual.nombre}</p>
+                    </div>
+                    <div class="space-y-3">
+                        ${PARTIDOS.map((partido, index) => {
+                            const bloqueNum = index + 1;
+                            const respuestas = estado.respuestasTemporales[`bloque_${bloqueNum}`] || {};
+                            return `
+                                <div class="glass p-3">
+                                    <p class="text-xs text-white/60 mb-2">BLOQUE ${bloqueNum}: ${partido.local} vs ${partido.visitante}</p>
+                                    <div class="flex flex-wrap gap-2">
+                                        ${partido.preguntas.map((p, i) => `
+                                            <span class="chip ${respuestasIguales(respuestas[p.id], 'Si') ? 'chip-success' : 'chip-danger'} text-xs">
+                                                P${i + 1}: ${respuestas[p.id]}
+                                            </span>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                    <p class="text-center text-xs text-white/40 mt-6">
+                        Generado el ${new Date().toLocaleString('es-VE')}
+                    </p>
+                `;
+                document.getElementById('tarjeta-oculta').classList.remove('hidden');
+                await new Promise(resolve => setTimeout(resolve, 100));
+                const canvas = await html2canvas(tarjetaDiv, {
+                    scale: 3, backgroundColor: null, useCORS: true
                 });
-            });
-
-            document.getElementById('btnEnviarBloque').addEventListener('click', () => enviarBloque(numBloque));
-        }
-
-        function verificarBloqueCompleto(numBloque) {
-            const respuestas = jugadasUsuario[numBloque];
-            if (respuestas && respuestas.length === 4 && respuestas.every(r => r !== undefined)) {
-                document.getElementById('btnEnviarBloque').disabled = false;
-            }
-        }
-
-        async function enviarBloque(numBloque) {
-            const db = window.db;
-            const { collection, doc, setDoc } = window.firestore;
-
-            await setDoc(doc(db, 'participantes', usuarioActual), {
-                nombre: usuarioActual,
-                jugadas: jugadasUsuario,
-                timestamp: new Date().toISOString()
-            });
-
-            mostrarToast(`¡Bloque ${numBloque} enviado!`, 'success');
-
-            if (numBloque < 4) {
-                bloqueActual = numBloque + 1;
-                document.getElementById('contenedorBloques').innerHTML = '';
-                setTimeout(() => mostrarBloque(bloqueActual), 500);
-            } else {
-                document.getElementById('seccionJuego').classList.add('hidden');
-                document.getElementById('seccionResumen').classList.remove('hidden');
-                mostrarResumenFinal();
-            }
-        }
-
-        function mostrarResumenFinal() {
-            const resumen = document.getElementById('resumenJugadas');
-            let html = '<div class="space-y-4">';
-
-            bloquesData.forEach((bloque, idx) => {
-                const numBloque = idx + 1;
-                const respuestas = jugadasUsuario[numBloque];
-                
-                html += `
-                    <div class="bg-white bg-opacity-5 p-4 rounded-lg">
-                        <h4 class="font-bold text-lg mb-2">${bloque.bandera1} ${bloque.equipo1} vs ${bloque.equipo2} ${bloque.bandera2}</h4>
-                        <div class="space-y-2">
-                            ${bloque.preguntas.map((pregunta, pIdx) => `
-                                <div class="flex justify-between items-center">
-                                    <span class="text-sm">${pregunta}</span>
-                                    <span class="font-bold ${respuestas[pIdx] ? 'text-green-400' : 'text-red-400'}">
-                                        ${respuestas[pIdx] ? 'SÍ' : 'NO'}
-                                    </span>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `;
-            });
-
-            html += '</div>';
-            resumen.innerHTML = html;
-        }
-
-        function descargarImagenUsuario() {
-            const contenedor = document.getElementById('contenedorImagen');
-            
-            let html = `
-                <div class="imagen-descarga">
-                    <h2 class="text-3xl font-bold text-center mb-6 bg-gradient-to-r from-yellow-400 to-red-400 bg-clip-text text-transparent">
-                        4tos de Final - Mi Jugada
-                    </h2>
-                    <p class="text-center text-xl mb-6">Jugador: <strong>${usuarioActual}</strong></p>
-                    <div class="space-y-4">
-            `;
-
-            bloquesData.forEach((bloque, idx) => {
-                const numBloque = idx + 1;
-                const respuestas = jugadasUsuario[numBloque];
-                
-                html += `
-                    <div class="bg-white bg-opacity-10 p-4 rounded-lg">
-                        <h4 class="font-bold text-lg mb-2">${bloque.bandera1} ${bloque.equipo1} vs ${bloque.equipo2} ${bloque.bandera2}</h4>
-                        <div class="space-y-1 text-sm">
-                            ${bloque.preguntas.map((pregunta, pIdx) => `
-                                <div class="flex justify-between">
-                                    <span>${pregunta}</span>
-                                    <span class="font-bold">${respuestas[pIdx] ? '✓ SÍ' : '✗ NO'}</span>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `;
-            });
-
-            html += `
-                    </div>
-                    <p class="text-center text-sm text-gray-400 mt-6">Generado el ${new Date().toLocaleDateString('es-ES')}</p>
-                </div>
-            `;
-
-            contenedor.innerHTML = html;
-            contenedor.classList.remove('hidden');
-
-            html2canvas(contenedor, { scale: 2, backgroundColor: '#1a1a2e' }).then(canvas => {
                 const link = document.createElement('a');
-                link.download = `4tos_Final_${usuarioActual}.jpg`;
+                link.download = `4tos_final_${estado.usuarioActual.nombre}.jpg`;
                 link.href = canvas.toDataURL('image/jpeg', 0.95);
                 link.click();
-                contenedor.classList.add('hidden');
-                mostrarToast('¡Imagen descargada!', 'success');
-            });
-        }
-
-        function accederAdmin() {
-            const clave = document.getElementById('inputClaveAdmin').value;
-            if (clave === '111180') {
-                document.getElementById('adminLogin').classList.add('hidden');
-                document.getElementById('panelAdmin').classList.remove('hidden');
-                cargarResultadosAdmin();
-                cargarParticipantesAdmin();
-                mostrarToast('Acceso concedido', 'success');
-            } else {
-                mostrarToast('Clave incorrecta', 'error');
+                document.getElementById('tarjeta-oculta').classList.add('hidden');
+                mostrarToast('Tarjeta descargada!', 'success');
+                reproducirSonido('trompeta');
+            } catch (error) {
+                console.error('Error al generar imagen:', error);
             }
-        }
-
-        async function cerrarJugadas() {
-            const db = window.db;
-            const { doc, setDoc } = window.firestore;
-            
-            await setDoc(doc(db, 'config', 'estado'), {
-                jugadasCerradas: true,
-                fechaCierre: new Date().toISOString()
-            });
-
-            jugadasCerradas = true;
-            mostrarToast('Jugadas cerradas', 'success');
-        }
-
-        async function verificarEstadoJugadas() {
-            const db = window.db;
-            const { doc, getDoc } = window.firestore;
-            
+        });
+        
+        document.getElementById('btn-volver-inicio').addEventListener('click', () => {
+            cargarStadium();
+            mostrarVista('vista-stadium');
+        });
+        
+        async function cargarStadium() {
             try {
-                const docSnap = await getDoc(doc(db, 'config', 'estado'));
-                if (docSnap.exists() && docSnap.data().jugadasCerradas) {
-                    jugadasCerradas = true;
-                }
-            } catch (e) {
-                console.log('No hay config aún');
-            }
-        }
-
-        function cargarResultadosAdmin() {
-            const contenedor = document.getElementById('contenedorResultados');
-            let html = '';
-
-            bloquesData.forEach((bloque, idx) => {
-                const numBloque = idx + 1;
-                html += `
-                    <div class="bg-white bg-opacity-5 p-4 rounded-lg mb-4">
-                        <h4 class="font-bold mb-3">${bloque.bandera1} ${bloque.equipo1} vs ${bloque.equipo2} ${bloque.bandera2}</h4>
-                        <div class="space-y-2">
-                            ${bloque.preguntas.map((pregunta, pIdx) => `
-                                <div class="flex items-center space-x-3">
-                                    <span class="flex-1 text-sm">${pregunta}</span>
-                                    <select class="resultado-select bg-white bg-opacity-10 px-3 py-1 rounded" data-bloque="${numBloque}" data-pregunta="${pIdx}">
-                                        <option value="">Seleccionar</option>
-                                        <option value="true">SÍ</option>
-                                        <option value="false">NO</option>
-                                    </select>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `;
-            });
-
-            contenedor.innerHTML = html;
-        }
-
-        async function procesarResultados() {
-            const db = window.db;
-            const { doc, setDoc, collection, getDocs } = window.firestore;
-            
-            const resultados = {};
-            document.querySelectorAll('.resultado-select').forEach(select => {
-                const bloque = select.dataset.bloque;
-                const pregunta = select.dataset.pregunta;
-                const valor = select.value;
+                const configDoc = await getDoc(doc(db, 'config', 'global'));
+                const config = configDoc.data();
+                const estadoApp = config.estadoApp;
                 
-                if (!resultados[bloque]) resultados[bloque] = [];
-                resultados[bloque][pregunta] = valor === 'true' ? true : (valor === 'false' ? false : null);
-            });
-
-            await setDoc(doc(db, 'resultados', 'oficial'), {
-                resultados: resultados,
-                timestamp: new Date().toISOString()
-            });
-
-            const participantesSnap = await getDocs(collection(db, 'participantes'));
-            const participantes = [];
-            
-            participantesSnap.forEach(docSnap => {
-                const data = docSnap.data();
-                const puntajes = calcularPuntajes(data.jugadas, resultados);
-                participantes.push({
-                    nombre: data.nombre,
-                    jugadas: data.jugadas,
-                    puntajes: puntajes
-                });
-            });
-
-            for (const p of participantes) {
-                await setDoc(doc(db, 'participantes', p.nombre), {
-                    nombre: p.nombre,
-                    jugadas: p.jugadas,
-                    puntajes: p.puntajes,
-                    timestamp: new Date().toISOString()
-                });
-            }
-
-            mostrarToast('Resultados procesados y puntajes calculados', 'success');
-            cargarRanking();
-        }
-
-        function calcularPuntajes(jugadas, resultados) {
-            const puntajes = {};
-            let total = 0;
-
-            for (let b = 1; b <= 4; b++) {
-                let ptsBloque = 0;
-                if (jugadas[b] && resultados[b]) {
-                    for (let p = 0; p < 4; p++) {
-                        if (jugadas[b][p] === resultados[b][p]) {
-                            ptsBloque++;
-                        }
-                    }
+                const inputContainer = document.getElementById('stadium-input-container');
+                const cerradoMsg = document.getElementById('stadium-cerrado-msg');
+                
+                if (estadoApp === 'CERRADO' || estadoApp === 'FINALIZADO') {
+                    if (inputContainer) inputContainer.classList.add('hidden');
+                    if (cerradoMsg) cerradoMsg.classList.remove('hidden');
+                } else {
+                    if (inputContainer) inputContainer.classList.remove('hidden');
+                    if (cerradoMsg) cerradoMsg.classList.add('hidden');
                 }
-                puntajes[b] = ptsBloque;
-                total += ptsBloque;
-            }
-
-            puntajes.total = total;
-            return puntajes;
-        }
-
-        async function cargarParticipantesAdmin() {
-            const db = window.db;
-            const { collection, getDocs, doc, setDoc } = window.firestore;
-            
-            const participantesSnap = await getDocs(collection(db, 'participantes'));
-            const lista = document.getElementById('listaParticipantes');
-            let html = '<div class="space-y-3">';
-
-            participantesSnap.forEach(docSnap => {
-                const data = docSnap.data();
-                html += `
-                    <div class="bg-white bg-opacity-5 p-4 rounded-lg">
-                        <div class="flex justify-between items-center mb-2">
-                            <h4 class="font-bold">${data.nombre}</h4>
-                            <div class="flex space-x-2">
-                                <button class="btn-secondary px-3 py-1 rounded text-sm" onclick="regenerarImagen('${data.nombre}')">
-                                    📷 Imagen
-                                </button>
-                            </div>
-                        </div>
-                        <p class="text-sm text-gray-400">${new Date(data.timestamp).toLocaleString('es-ES')}</p>
-                    </div>
-                `;
-            });
-
-            html += '</div>';
-            lista.innerHTML = html;
-        }
-
-        async function regenerarImagen(nombre) {
-            const db = window.db;
-            const { doc, getDoc } = window.firestore;
-            
-            const docSnap = await getDoc(doc(db, 'participantes', nombre));
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                usuarioActual = nombre;
-                jugadasUsuario = data.jugadas;
-                descargarImagenUsuario();
+                
+                actualizarVisibilidadAdmin();
+                
+                await cargarRanking();
+                await cargarJugadasPorBloque();
+                
+            } catch (error) {
+                console.error('Error cargando stadium:', error);
+                mostrarToast('Error al cargar datos', 'danger');
             }
         }
-
-        function copiarWhatsApp() {
-            const db = window.db;
-            const { collection, getDocs } = window.firestore;
-            
-            getDocs(collection(db, 'resultados')).then(snapshot => {
-                if (snapshot.empty) {
-                    mostrarToast('No hay resultados cargados', 'error');
-                    return;
-                }
-
-                const resultados = snapshot.docs[0].data().resultados;
-                let texto = '🏆 *4TOS DE FINAL - RESULTADOS* 🏆\n\n';
-
-                bloquesData.forEach((bloque, idx) => {
-                    const numBloque = idx + 1;
-                    texto += `${bloque.bandera1} *${bloque.equipo1} vs ${bloque.equipo2}* ${bloque.bandera2}\n`;
-                    bloque.preguntas.forEach((pregunta, pIdx) => {
-                        const respuesta = resultados[numBloque][pIdx];
-                        texto += `${respuesta ? '✓' : '✗'} ${pregunta}\n`;
-                    });
-                    texto += '\n';
-                });
-
-                navigator.clipboard.writeText(texto).then(() => {
-                    mostrarToast('Copiado al portapapeles', 'success');
-                });
-            });
-        }
-
-        function copiarRanking() {
-            const db = window.db;
-            const { collection, getDocs } = window.firestore;
-            
-            getDocs(collection(db, 'participantes')).then(snapshot => {
+        
+        async function cargarRanking() {
+            try {
+                const rankingContainer = document.getElementById('ranking-container');
+                const rankingBody = document.getElementById('ranking-body');
+                if (!rankingContainer || !rankingBody) return;
+                
+                const participantesSnapshot = await getDocs(collection(db, 'participantes'));
                 const participantes = [];
-                snapshot.forEach(docSnap => {
-                    const data = docSnap.data();
-                    if (data.puntajes) {
+                participantesSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (data.estado === 'COMPLETADO') {
                         participantes.push({
+                            id: doc.id,
                             nombre: data.nombre,
-                            puntajes: data.puntajes
+                            puntajeTotal: data.puntajes?.total || 0
                         });
                     }
                 });
-
-                participantes.sort((a, b) => b.puntajes.total - a.puntajes.total);
-
-                let texto = '🏆 *RANKING 4TOS DE FINAL* 🏆\n\n';
-                participantes.forEach((p, idx) => {
-                    texto += `${idx + 1}. *${p.nombre}* - ${p.puntajes.total} pts\n`;
-                    texto += `   B1:${p.puntajes[1]} B2:${p.puntajes[2]} B3:${p.puntajes[3]} B4:${p.puntajes[4]}\n`;
+                
+                const hayResultados = participantes.some(p => p.puntajeTotal > 0);
+                if (!hayResultados) {
+                    rankingContainer.classList.add('hidden');
+                    return;
+                }
+                
+                rankingContainer.classList.remove('hidden');
+                participantes.sort((a, b) => {
+                    if (b.puntajeTotal !== a.puntajeTotal) return b.puntajeTotal - a.puntajeTotal;
+                    return a.nombre.localeCompare(b.nombre);
                 });
-
-                navigator.clipboard.writeText(texto).then(() => {
-                    mostrarToast('Ranking copiado', 'success');
+                
+                rankingBody.innerHTML = '';
+                participantes.forEach((p, index) => {
+                    const posicion = index + 1;
+                    let emoji = '';
+                    if (posicion === 1) emoji = '1ro';
+                    else if (posicion === 2) emoji = '2do';
+                    else if (posicion === 3) emoji = '3ro';
+                    else emoji = posicion + 'to';
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="font-numero text-xl">${emoji}</td>
+                        <td class="font-nombre">${p.nombre}</td>
+                        <td class="font-numero text-xl text-yellow-400">${p.puntajeTotal}</td>
+                    `;
+                    rankingBody.appendChild(row);
                 });
+            } catch (error) {
+                console.error('Error cargando ranking:', error);
+            }
+        }
+        
+        async function cargarJugadasPorBloque() {
+            try {
+                const bloquesContainer = document.getElementById('bloques-jugadas');
+                if (!bloquesContainer) return;
+                bloquesContainer.innerHTML = '';
+                
+                const participantesSnapshot = await getDocs(collection(db, 'participantes'));
+                const participantes = [];
+                participantesSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (data.estado === 'COMPLETADO') {
+                        participantes.push({
+                            id: doc.id,
+                            nombre: data.nombre,
+                            respuestas: data.respuestas || {},
+                            puntajes: data.puntajes || {}
+                        });
+                    }
+                });
+                
+                const partidosSnapshot = await getDocs(collection(db, 'partidos'));
+                const resultadosOficiales = {};
+                partidosSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    resultadosOficiales[`bloque_${data.numero}`] = data.resultadosOficiales;
+                });
+                
+                PARTIDOS.forEach((partido, index) => {
+                    const bloqueNum = index + 1;
+                    const bloqueKey = `bloque_${bloqueNum}`;
+                    const resultados = resultadosOficiales[bloqueKey] || {};
+                    const hayResultados = Object.values(resultados).some(r => r !== null && r !== undefined);
+                    
+                    const bloqueDiv = document.createElement('div');
+                    bloqueDiv.className = 'glass p-4';
+                    
+                    let tablaHTML = `
+                        <div class="mb-4">
+                            <h4 class="font-semibold text-yellow-400 mb-2 text-lg">
+                                BLOQUE ${bloqueNum}: ${partido.local} vs ${partido.visitante}
+                            </h4>
+                            <div class="space-y-1 mb-3 pl-2 border-l-2 border-fucsia/30">
+                                ${partido.preguntas.map((p, i) => `
+                                    <p class="text-xs text-white/60 font-medium">
+                                        <span class="text-fucsia font-bold">P${i + 1}:</span> ${p.texto}
+                                        ${hayResultados ? `<span class="text-green-400 ml-2">(Correcta: ${resultados[p.id] || 'N/A'})</span>` : ''}
+                                    </p>
+                                `).join('')}
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="tabla-glass text-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th title="${partido.preguntas[0].texto}" class="cursor-help">P1</th>
+                                        <th title="${partido.preguntas[1].texto}" class="cursor-help">P2</th>
+                                        <th title="${partido.preguntas[2].texto}" class="cursor-help">P3</th>
+                                        <th title="${partido.preguntas[3].texto}" class="cursor-help">P4</th>
+                                        ${hayResultados ? '<th>Pts</th>' : ''}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                    `;
+                    
+                    participantes.forEach(p => {
+                        const respuestas = p.respuestas[bloqueKey] || {};
+                        let puntos = 0;
+                        tablaHTML += `<tr><td class="font-nombre">${p.nombre}</td>`;
+                        
+                        partido.preguntas.forEach(pregunta => {
+                            const respuesta = respuestas[pregunta.id] || '—';
+                            let clase = '';
+                            let icono = '';
+                            
+                            if (hayResultados && respuesta !== '—') {
+                                const correcta = resultados[pregunta.id];
+                                const esCorrecta = respuestasIguales(respuesta, correcta);
+                                
+                                if (esCorrecta) {
+                                    clase = 'chip-success';
+                                    icono = 'OK';
+                                    puntos++;
+                                } else {
+                                    clase = 'chip-danger';
+                                    icono = 'X';
+                                }
+                            }
+                            
+                            tablaHTML += `
+                                <td>
+                                    <span class="chip ${clase}">${respuesta} ${icono}</span>
+                                </td>
+                            `;
+                        });
+                        
+                        if (hayResultados) {
+                            tablaHTML += `<td class="font-numero text-yellow-400">${puntos}</td>`;
+                        }
+                        tablaHTML += `</tr>`;
+                    });
+                    
+                    tablaHTML += `</tbody></table></div>`;
+                    bloqueDiv.innerHTML = tablaHTML;
+                    bloquesContainer.appendChild(bloqueDiv);
+                });
+                
+            } catch (error) {
+                console.error('Error cargando jugadas:', error);
+                mostrarToast('Error al cargar jugadas', 'danger');
+            }
+        }
+        
+        document.getElementById('btn-admin-link').addEventListener('click', () => {
+            mostrarVista('vista-admin-login');
+        });
+        
+        document.getElementById('btn-volver-desde-admin').addEventListener('click', () => {
+            mostrarVista('vista-registro');
+        });
+        
+        document.getElementById('btn-login-admin').addEventListener('click', async () => {
+            const password = document.getElementById('input-password-admin').value;
+            try {
+                const configDoc = await getDoc(doc(db, 'config', 'global'));
+                const config = configDoc.data();
+                if (password === config.contrasenaAdmin) {
+                    estado.modoAdmin = true;
+                    mostrarToast('Acceso concedido', 'success');
+                    cargarPanelAdmin();
+                    mostrarVista('vista-admin-panel');
+                } else {
+                    mostrarToast('Contrasena incorrecta', 'danger');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarToast('Error de conexion', 'danger');
+            }
+        });
+        
+        document.getElementById('btn-salir-admin').addEventListener('click', () => {
+            estado.modoAdmin = false;
+            cargarStadium();
+            mostrarVista('vista-stadium');
+        });
+        
+        document.getElementById('btn-ir-stadium').addEventListener('click', () => {
+            cargarStadium();
+            mostrarVista('vista-stadium');
+        });
+        
+        document.getElementById('btn-ir-panel').addEventListener('click', () => {
+            if (estado.modoAdmin) {
+                cargarPanelAdmin();
+                mostrarVista('vista-admin-panel');
+            }
+        });
+        
+        document.getElementById('btn-salir-stadium').addEventListener('click', () => {
+            estado.usuarioActual = null;
+            estado.modoAdmin = false;
+            localStorage.removeItem('usuarioActual');
+            document.getElementById('input-nombre').value = '';
+            document.getElementById('input-nombre-stadium').value = '';
+            mostrarVista('vista-registro');
+            mostrarToast('Sesion cerrada', 'info');
+        });
+        
+        document.getElementById('btn-admin-stadium').addEventListener('click', () => {
+            mostrarVista('vista-admin-login');
+        });
+        
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
             });
+        });
+        
+        async function cargarPanelAdmin() {
+            await cargarTabResultados();
+            await cargarTabEdicion();
+            await cargarTabControl();
         }
-
-        function descargarPDF() {
-            mostrarToast('Función PDF en desarrollo', 'error');
+        
+        async function cargarTabResultados() {
+            const container = document.getElementById('tab-resultados');
+            container.innerHTML = `
+                <div class="mb-6">
+                    <label class="block text-sm font-semibold text-white/80 mb-2">Seleccionar bloque</label>
+                    <select id="select-bloque-resultados" class="input-custom">
+                        ${PARTIDOS.map(p => `<option value="${p.numero}">Bloque ${p.numero}: ${p.local} vs ${p.visitante}</option>`).join('')}
+                    </select>
+                </div>
+                <div id="formulario-resultados"></div>
+            `;
+            document.getElementById('select-bloque-resultados').addEventListener('change', (e) => {
+                cargarFormularioResultados(parseInt(e.target.value));
+            });
+            cargarFormularioResultados(1);
         }
-
-        async function cargarRanking() {
-            const db = window.db;
-            const { collection, getDocs } = window.firestore;
-            
-            const participantesSnap = await getDocs(collection(db, 'participantes'));
-            const participantes = [];
-
-            participantesSnap.forEach(docSnap => {
+        
+        async function cargarFormularioResultados(bloqueNum) {
+            const container = document.getElementById('formulario-resultados');
+            const partido = PARTIDOS[bloqueNum - 1];
+            try {
+                const partidoDoc = await getDoc(doc(db, 'partidos', `bloque_${bloqueNum}`));
+                const resultados = partidoDoc.data().resultadosOficiales;
+                
+                let html = `
+                    <div class="glass p-6 mb-6">
+                        <h3 class="font-titulo text-xl titulo-gradient mb-4">BLOQUE ${bloqueNum}: ${partido.local} vs ${partido.visitante}</h3>
+                        <div class="space-y-4">
+                `;
+                partido.preguntas.forEach((pregunta, index) => {
+                    const respuestaActual = resultados[pregunta.id];
+                    html += `
+                        <div class="glass p-4">
+                            <p class="font-semibold text-white/90 mb-3">
+                                <span class="text-yellow-400 font-numero">${index + 1}.</span> ${pregunta.texto}
+                            </p>
+                            <div class="flex flex-wrap gap-3">
+                                <label class="radio-custom ${respuestasIguales(respuestaActual, 'Si') ? 'selected' : ''}" 
+                                       data-pregunta="${pregunta.id}" data-respuesta="Si" data-bloque="${bloqueNum}">
+                                    <input type="radio" name="resultado_${bloqueNum}_${pregunta.id}" value="Si" ${respuestasIguales(respuestaActual, 'Si') ? 'checked' : ''}>
+                                    <span>Si</span>
+                                </label>
+                                <label class="radio-custom ${respuestasIguales(respuestaActual, 'No') ? 'selected' : ''}" 
+                                       data-pregunta="${pregunta.id}" data-respuesta="No" data-bloque="${bloqueNum}">
+                                    <input type="radio" name="resultado_${bloqueNum}_${pregunta.id}" value="No" ${respuestasIguales(respuestaActual, 'No') ? 'checked' : ''}>
+                                    <span>No</span>
+                                </label>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += `
+                        </div>
+                        <div class="flex flex-col sm:flex-row gap-3 mt-6">
+                            <button id="btn-guardar-resultados" class="btn-success flex-1 py-3 rounded-xl font-semibold">GUARDAR RESULTADOS</button>
+                            <button id="btn-copiar-whatsapp" class="btn-primary flex-1 py-3 rounded-xl font-semibold">COPIAR PARA WHATSAPP</button>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML = html;
+                
+                container.querySelectorAll('.radio-custom').forEach(label => {
+                    label.addEventListener('click', () => {
+                        const preguntaId = label.dataset.pregunta;
+                        const bloque = parseInt(label.dataset.bloque);
+                        container.querySelectorAll(`.radio-custom[data-pregunta="${preguntaId}"][data-bloque="${bloque}"]`).forEach(l => {
+                            l.classList.remove('selected');
+                        });
+                        label.classList.add('selected');
+                        label.querySelector('input').checked = true;
+                    });
+                });
+                
+                document.getElementById('btn-guardar-resultados').addEventListener('click', async () => {
+                    const nuevosResultados = {};
+                    partido.preguntas.forEach(pregunta => {
+                        const selected = container.querySelector(`.radio-custom.selected[data-pregunta="${pregunta.id}"]`);
+                        if (selected) nuevosResultados[pregunta.id] = selected.dataset.respuesta;
+                    });
+                    if (Object.keys(nuevosResultados).length !== 4) {
+                        mostrarToast('Debes seleccionar todas las respuestas', 'danger');
+                        return;
+                    }
+                    try {
+                        await updateDoc(doc(db, 'partidos', `bloque_${bloqueNum}`), {
+                            resultadosOficiales: nuevosResultados,
+                            estado: 'COMPLETADO'
+                        });
+                        await recalcularPuntajes();
+                        mostrarToast('Resultados guardados', 'success');
+                    } catch (error) {
+                        console.error('Error:', error);
+                        mostrarToast('Error al guardar', 'danger');
+                    }
+                });
+                
+                document.getElementById('btn-copiar-whatsapp').addEventListener('click', async () => {
+                    const texto = generarTextoWhatsApp(bloqueNum);
+                    try {
+                        await navigator.clipboard.writeText(texto);
+                        mostrarToast('Copiado! Pegalo en WhatsApp', 'success');
+                    } catch (error) {
+                        mostrarToast('Error al copiar', 'danger');
+                    }
+                });
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+        
+        async function recalcularPuntajes() {
+            try {
+                const participantesSnapshot = await getDocs(collection(db, 'participantes'));
+                const partidosSnapshot = await getDocs(collection(db, 'partidos'));
+                const resultadosOficiales = {};
+                partidosSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    resultadosOficiales[`bloque_${data.numero}`] = data.resultadosOficiales;
+                });
+                participantesSnapshot.forEach(async (docSnap) => {
+                    const data = docSnap.data();
+                    if (data.estado !== 'COMPLETADO') return;
+                    const puntajes = {};
+                    let total = 0;
+                    for (let i = 1; i <= 4; i++) {
+                        const bloqueKey = `bloque_${i}`;
+                        const respuestas = data.respuestas[bloqueKey] || {};
+                        const resultados = resultadosOficiales[bloqueKey] || {};
+                        let puntos = 0;
+                        for (const preguntaId in respuestas) {
+                            if (respuestasIguales(respuestas[preguntaId], resultados[preguntaId])) puntos++;
+                        }
+                        puntajes[bloqueKey] = puntos;
+                        total += puntos;
+                    }
+                    puntajes.total = total;
+                    await updateDoc(doc(db, 'participantes', docSnap.id), { puntajes: puntajes });
+                });
+            } catch (error) {
+                console.error('Error recalculando:', error);
+            }
+        }
+        
+        function generarTextoWhatsApp(bloqueNum) {
+            const partido = PARTIDOS[bloqueNum - 1];
+            let texto = `*4TOS DE FINAL - BLOQUE ${bloqueNum}*\n`;
+            texto += `*${partido.local} vs ${partido.visitante}*\n\n`;
+            texto += `Resultados cargados correctamente.\n`;
+            texto += `Revisa el ranking en la app.\n\n`;
+            texto += `_Generado el ${new Date().toLocaleString('es-VE')}_`;
+            return texto;
+        }
+        
+        async function cargarTabEdicion() {
+            const container = document.getElementById('tab-edicion');
+            try {
+                const participantesSnapshot = await getDocs(collection(db, 'participantes'));
+                const participantes = [];
+                participantesSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (data.estado === 'COMPLETADO') {
+                        participantes.push({ id: doc.id, nombre: data.nombre, respuestas: data.respuestas, puntajes: data.puntajes });
+                    }
+                });
+                let html = `<h3 class="font-titulo text-xl titulo-gradient mb-4">PARTICIPANTES (${participantes.length})</h3><div class="space-y-3">`;
+                participantes.forEach(p => {
+                    html += `
+                        <div class="glass p-4">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="font-nombre text-lg">${p.nombre}</span>
+                                <span class="chip chip-success">${p.puntajes?.total || 0} pts</span>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                <button class="btn-secondary px-3 py-1 rounded-lg text-xs font-semibold" onclick="editarParticipante('${p.id}')">Editar</button>
+                                <button class="btn-danger px-3 py-1 rounded-lg text-xs font-semibold" onclick="eliminarParticipante('${p.id}')">Eliminar</button>
+                                <button class="btn-primary px-3 py-1 rounded-lg text-xs font-semibold" onclick="generarJPGAdmin('${p.id}')">Generar JPG</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+        
+        window.editarParticipante = async (id) => { mostrarToast('Funcion en desarrollo', 'info'); };
+        window.eliminarParticipante = async (id) => {
+            if (confirm('Eliminar este participante?')) {
+                try {
+                    await deleteDoc(doc(db, 'participantes', id));
+                    mostrarToast('Participante eliminado', 'success');
+                    cargarTabEdicion();
+                } catch (error) {
+                    mostrarToast('Error al eliminar', 'danger');
+                }
+            }
+        };
+        window.generarJPGAdmin = async (id) => { mostrarToast('Funcion en desarrollo', 'info'); };
+        
+        async function cargarTabControl() {
+            const container = document.getElementById('tab-control');
+            try {
+                const configDoc = await getDoc(doc(db, 'config', 'global'));
+                const config = configDoc.data();
+                const estadoApp = config.estadoApp;
+                let colorSemaforo = 'semaforo-verde';
+                let textoEstado = 'ABIERTO';
+                if (estadoApp === 'CERRADO') { colorSemaforo = 'semaforo-rojo'; textoEstado = 'CERRADO'; }
+                else if (estadoApp === 'FINALIZADO') { colorSemaforo = 'semaforo-amarillo'; textoEstado = 'FINALIZADO'; }
+                
+                container.innerHTML = `
+                    <div class="glass p-6 mb-6">
+                        <h3 class="font-titulo text-xl titulo-gradient mb-4">ESTADO ACTUAL</h3>
+                        <div class="flex items-center gap-3 mb-6">
+                            <span class="semaforo ${colorSemaforo}"></span>
+                            <span class="font-nombre text-2xl">${textoEstado}</span>
+                        </div>
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <button id="btn-cerrar-jugadas" class="btn-danger flex-1 py-3 rounded-xl font-semibold">CERRAR JUGADAS</button>
+                            <button id="btn-abrir-jugadas" class="btn-success flex-1 py-3 rounded-xl font-semibold">ABRIR JUGADAS</button>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('btn-cerrar-jugadas').addEventListener('click', async () => {
+                    await updateDoc(doc(db, 'config', 'global'), { estadoApp: 'CERRADO' });
+                    mostrarToast('Jugadas cerradas', 'success');
+                    cargarTabControl();
+                });
+                document.getElementById('btn-abrir-jugadas').addEventListener('click', async () => {
+                    await updateDoc(doc(db, 'config', 'global'), { estadoApp: 'ABIERTO' });
+                    mostrarToast('Jugadas abiertas', 'success');
+                    cargarTabControl();
+                });
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+        
+        document.getElementById('btn-participar-stadium').addEventListener('click', () => {
+            const nombre = document.getElementById('input-nombre-stadium').value.trim().toUpperCase();
+            if (nombre) {
+                document.getElementById('input-nombre').value = nombre;
+                mostrarVista('vista-registro');
+                btnParticipar.click();
+            } else {
+                mostrarToast('Por favor ingresa tu nombre', 'danger');
+            }
+        });
+        
+        onSnapshot(doc(db, 'config', 'global'), (docSnap) => {
+            if (docSnap.exists()) {
                 const data = docSnap.data();
-                participantes.push(data);
-            });
-
-            const tablaTransparencia = document.getElementById('tablaTransparencia');
-            let htmlTransparencia = '';
-            participantes.forEach(p => {
-                htmlTransparencia += `
-                    <tr>
-                        <td class="px-4 py-3 font-semibold">${p.nombre}</td>
-                        <td class="px-4 py-3 text-center">${p.jugadas[1] ? p.jugadas[1].map(r => r ? 'SÍ' : 'NO').join(', ') : '-'}</td>
-                        <td class="px-4 py-3 text-center">${p.jugadas[2] ? p.jugadas[2].map(r => r ? 'SÍ' : 'NO').join(', ') : '-'}</td>
-                        <td class="px-4 py-3 text-center">${p.jugadas[3] ? p.jugadas[3].map(r => r ? 'SÍ' : 'NO').join(', ') : '-'}</td>
-                        <td class="px-4 py-3 text-center">${p.jugadas[4] ? p.jugadas[4].map(r => r ? 'SÍ' : 'NO').join(', ') : '-'}</td>
-                    </tr>
-                `;
-            });
-            tablaTransparencia.innerHTML = htmlTransparencia;
-
-            const tablaRanking = document.getElementById('tablaRanking');
-            let htmlRanking = '';
+                const estadoApp = data.estadoApp;
+                
+                if (document.getElementById('vista-stadium').classList.contains('activa')) {
+                    cargarStadium();
+                }
+                
+                if (document.getElementById('vista-registro').classList.contains('activa')) {
+                    if (estadoApp === 'CERRADO' || estadoApp === 'FINALIZADO') {
+                        document.getElementById('temporizador').textContent = 'CERRADO';
+                        document.getElementById('temporizador').classList.add('text-red-400');
+                        document.getElementById('registro-form-container').classList.add('hidden');
+                        document.getElementById('registro-cerrado-msg').classList.remove('hidden');
+                        document.getElementById('input-nombre').disabled = true;
+                        document.getElementById('btn-participar').disabled = true;
+                    } else {
+                        document.getElementById('registro-form-container').classList.remove('hidden');
+                        document.getElementById('registro-cerrado-msg').classList.add('hidden');
+                        document.getElementById('input-nombre').disabled = false;
+                        document.getElementById('btn-participar').disabled = false;
+                    }
+                }
+            }
+        });
+        
+        window.addEventListener('load', async () => {
+            console.log('Pagina cargada. Verificando estado...');
             
-            const conPuntajes = participantes.filter(p => p.puntajes);
-            conPuntajes.sort((a, b) => b.puntajes.total - a.puntajes.total);
-
-            conPuntajes.forEach(p => {
-                htmlRanking += `
-                    <tr>
-                        <td class="px-4 py-3 font-semibold">${p.nombre}</td>
-                        <td class="px-4 py-3 text-center">${p.puntajes[1]}</td>
-                        <td class="px-4 py-3 text-center">${p.puntajes[1]}</td>
-                        <td class="px-4 py-3 text-center">${p.puntajes[2]}</td>
-                        <td class="px-4 py-3 text-center">${p.puntajes[2]}</td>
-                        <td class="px-4 py-3 text-center">${p.puntajes[3]}</td>
-                        <td class="px-4 py-3 text-center">${p.puntajes[3]}</td>
-                        <td class="px-4 py-3 text-center">${p.puntajes[4]}</td>
-                        <td class="px-4 py-3 text-center">${p.puntajes[4]}</td>
-                        <td class="px-4 py-3 text-center font-bold text-yellow-400">${p.puntajes.total}</td>
-                    </tr>
-                `;
-            });
-            tablaRanking.innerHTML = htmlRanking;
-        }
-
-        function mostrarToast(mensaje, tipo = 'success') {
-            const toast = document.createElement('div');
-            toast.className = `toast ${tipo === 'error' ? 'error' : ''}`;
-            toast.textContent = mensaje;
-            document.body.appendChild(toast);
-
-            setTimeout(() => {
-                toast.remove();
-            }, 3000);
-        }
+            try {
+                const configDoc = await getDoc(doc(db, 'config', 'global'));
+                if (configDoc.exists()) {
+                    const estadoApp = configDoc.data().estadoApp;
+                    console.log('Estado de la app:', estadoApp);
+                    
+                    if (estadoApp === 'CERRADO' || estadoApp === 'FINALIZADO') {
+                        console.log('Estado cerrado/finalizado - Redirigiendo al Stadium...');
+                        document.querySelectorAll('.vista').forEach(v => v.classList.remove('activa'));
+                        await cargarStadium();
+                        mostrarVista('vista-stadium');
+                        console.log('Redireccion completada');
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.error('Error verificando estado:', error);
+            }
+            
+            const usuarioGuardado = localStorage.getItem('usuarioActual');
+            
+            if (usuarioGuardado) {
+                try {
+                    const userData = JSON.parse(usuarioGuardado);
+                    const docSnap = await getDoc(doc(db, 'participantes', userData.id));
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        if (data.estado === 'EN_PROGRESO') {
+                            await deleteDoc(doc(db, 'participantes', userData.id));
+                            localStorage.removeItem('usuarioActual');
+                        } else if (data.estado === 'COMPLETADO') {
+                            estado.usuarioActual = userData;
+                            await cargarStadium();
+                            mostrarVista('vista-stadium');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error verificando usuario:', error);
+                    localStorage.removeItem('usuarioActual');
+                }
+            }
+        });
     </script>
     
 </body>
