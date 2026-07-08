@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4tos de Final - Predicciones Deportivas</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+        import { getFirestore, collection, doc, setDoc, getDocs, updateDoc, query, where } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyAW-UUmligtli8aLJtWeVhM1QdE1tTx7kM",
+            authDomain: "tos-de-final.firebaseapp.com",
+            projectId: "tos-de-final",
+            storageBucket: "tos-de-final.firebasestorage.app",
+            messagingSenderId: "795172688369",
+            appId: "1:795172688369:web:2d8674b393733d2bd03450"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        
+        window.db = db;
+        window.firestore = { collection, doc, setDoc, getDocs, updateDoc, query, where };
+    </script>
+    
+    <!-- html2canvas para generar imágenes -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <style>
+        /* Paleta de colores personalizada */
+        :root {
+            --color-primary: #1a1a2e;
+            --color-secondary: #16213e;
+            --color-accent: #0f3460;
+            --color-highlight: #e94560;
+            --color-gold: #f4c430;
+            --color-success: #10b981;
+            --color-text: #f1f5f9;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--color-text);
+            min-height: 100vh;
+        }
+        
+        /* Animaciones */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(233, 69, 96, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(233, 69, 96, 0.8); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        .slide-in {
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        .pulse-glow {
+            animation: pulse-glow 2s infinite;
+        }
+        
+        /* Tarjetas */
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Botones */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--color-highlight) 0%, #c73650 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(233, 69, 96, 0.4);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--color-accent) 0%, #0a2540 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(15, 52, 96, 0.4);
+        }
+        
+        /* Tablas */
+        .table-custom {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .table-custom th {
+            background: rgba(233, 69, 96, 0.2);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+        
+        .table-custom tr {
+            transition: background 0.2s ease;
+        }
+        
+        .table-custom tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        /* Pestañas del admin */
+        .tab-btn {
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .tab-btn.active {
+            border-bottom-color: var(--color-highlight);
+            color: var(--color-highlight);
+        }
+        
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Bloques de partidos */
+        .bloque-card {
+            background: linear-gradient(135deg, rgba(15, 52, 96, 0.3) 0%, rgba(26, 26, 46, 0.5) 100%);
+            border: 2px solid rgba(244, 196, 48, 0.2);
+        }
+        
+        .bloque-card:hover {
+            border-color: rgba(244, 196, 48, 0.5);
+        }
+        
+        /* Botones de Sí/No */
+        .btn-sino {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .btn-si {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: rgba(16, 185, 129, 0.5);
+        }
+        
+        .btn-si.selected {
+            background: var(--color-success);
+            border-color: var(--color-success);
+            transform: scale(1.05);
+        }
+        
+        .btn-no {
+            background: rgba(233, 69, 96, 0.2);
+            border-color: rgba(233, 69, 96, 0.5);
+        }
+        
+        .btn-no.selected {
+            background: var(--color-highlight);
+            border-color: var(--color-highlight);
+            transform: scale(1.05);
+        }
+        
+        /* Toast notifications */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            border-radius: 12px;
+            background: var(--color-success);
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            z-index: 9999;
+            animation: slideIn 0.4s ease-out;
+        }
+        
+        .toast.error {
+            background: var(--color-highlight);
+        }
+        
+        /* Scrollbar personalizado */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--color-primary);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--color-accent);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--color-highlight);
+        }
+        
+        /* Imagen para descargar */
+        .imagen-descarga {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            padding: 40px;
+            border-radius: 16px;
+            color: white;
+            width: 600px;
+        }
+    </style>
+</head>
+<body class="pb-20">
+    
+    <!-- NAVBAR -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-opacity-95 backdrop-blur-md" style="background: rgba(26, 26, 46, 0.95);">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-3">
+                    <span class="text-2xl">⚽</span>
+                    <h1 class="text-xl sm:text-2xl font-bold bg-gradient-to-r from-red-400 to-yellow-400 bg-clip-text text-transparent">
+                        4tos de Final
+                    </h1>
+                </div>
+                <div class="flex space-x-4 sm:space-x-6">
+                    <a href="#inicio" class="nav-link text-sm sm:text-base hover:text-red-400 transition-colors">Inicio</a>
+                    <a href="#ranking" class="nav-link text-sm sm:text-base hover:text-red-400 transition-colors">Ranking</a>
+                    <a href="#admin" class="nav-link text-sm sm:text-base hover:text-red-400 transition-colors">Admin</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- HERO SECTION -->
+    <section id="inicio" class="pt-24 pb-12 px-4">
+        <div class="max-w-4xl mx-auto text-center fade-in">
+            <div class="card p-8 sm:p-12">
+                <h2 class="text-3xl sm:text-5xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-red-400 bg-clip-text text-transparent">
+                    Ingresa a la Jugada
+                </h2>
+                <p class="text-lg sm:text-xl text-gray-300 mb-8">
+                    Predice los resultados de los 4tos de Final y gana hasta <span class="text-yellow-400 font-bold">16 puntos</span>
+                </p>
+                <button id="btnParticipar" class="btn-primary text-white font-bold py-4 px-12 rounded-full text-lg sm:text-xl pulse-glow">
+                    PARTICIPAR
+                </button>
+            </div>
+        </div>
+    </section>
+    
+    <!-- MODAL DE NOMBRE -->
+    <div id="modalNombre" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm">
+        <div class="card p-8 max-w-md w-full mx-4 fade-in">
+            <h3 class="text-2xl font-bold mb-4 text-center">¿Cuál es tu nombre?</h3>
+            <input type="text" id="inputNombre" placeholder="Ingresa tu nombre" 
+                   class="w-full px-4 py-3 rounded-lg bg-white bg-opacity-10 border border-white border-opacity-20 text-white placeholder-gray-400 focus:outline-none focus:border-red-400 transition-colors">
+            <div class="flex space-x-3 mt-6">
+                <button id="btnCancelarNombre" class="btn-secondary flex-1 py-3 rounded-lg font-semibold">Cancelar</button>
+                <button id="btnConfirmarNombre" class="btn-primary flex-1 py-3 rounded-lg font-semibold">Continuar</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- SECCIÓN DE BLOQUES (JUEGO) -->
+    <section id="seccionJuego" class="hidden px-4 pb-12">
+        <div class="max-w-4xl mx-auto">
+            <div id="contenedorBloques"></div>
+        </div>
+    </section>
+    
+    <!-- RESUMEN FINAL -->
+    <section id="seccionResumen" class="hidden px-4 pb-12">
+        <div class="max-w-4xl mx-auto">
+            <div class="card p-8 fade-in">
+                <h3 class="text-3xl font-bold mb-6 text-center">¡Jugada Completada!</h3>
+                <div id="resumenJugadas"></div>
+                <button id="btnDescargarImagen" class="btn-primary w-full mt-6 py-4 rounded-lg font-bold text-lg">
+                    📥 Descargar mi Imagen
+                </button>
+            </div>
+        </div>
+    </section>
+    
+    <!-- REGLAMENTO -->
+    <section class="px-4 pb-12">
+        <div class="max-w-4xl mx-auto">
+            <div class="card p-6 sm:p-8 fade-in">
+                <h3 class="text-2xl font-bold mb-4 flex items-center">
+                    <span class="mr-2">📋</span> Reglamento de Puntuación
+                </h3>
+                <ul class="space-y-2 text-gray-300">
+                    <li class="flex items-start">
+                        <span class="text-green-400 mr-2">✓</span>
+                        <span><strong>1 punto</strong> por cada acierto en las preguntas Sí/No</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-green-400 mr-2">✓</span>
+                        <span><strong>4 bloques</strong> con 4 preguntas cada uno = máximo <strong>16 puntos</strong></span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-green-400 mr-2">✓</span>
+                        <span>Los bloques se desbloquean uno a uno al completar el anterior</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-green-400 mr-2">✓</span>
+                        <span>Al completar todos los bloques, podrás descargar tu imagen personalizada</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-green-400 mr-2">✓</span>
+                        <span>Los empates en el ranking: ¡todos son ganadores!</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    
+    <!-- RANKING -->
+    <section id="ranking" class="px-4 pb-12">
+        <div class="max-w-6xl mx-auto">
+            <h3 class="text-3xl font-bold mb-6 text-center">
+                <span class="mr-2">🏆</span> Tabla de Posiciones
+            </h3>
+            
+            <!-- Tabla de Transparencia -->
+            <div class="card p-6 mb-6 fade-in">
+                <h4 class="text-xl font-bold mb-4">Tabla de Transparencia (Selecciones)</h4>
+                <div class="overflow-x-auto">
+                    <table class="table-custom w-full text-sm">
+                        <thead>
+                            <tr>
+                                <th class="px-4 py-3 text-left">Nombre</th>
+                                <th class="px-4 py-3 text-center">Bloque 1</th>
+                                <th class="px-4 py-3 text-center">Bloque 2</th>
+                                <th class="px-4 py-3 text-center">Bloque 3</th>
+                                <th class="px-4 py-3 text-center">Bloque 4</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaTransparencia">
+                            <!-- Se llena dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Ranking General -->
+            <div class="card p-6 fade-in">
+                <h4 class="text-xl font-bold mb-4">Ranking General con Puntaje</h4>
+                <div class="overflow-x-auto">
+                    <table class="table-custom w-full text-sm">
+                        <thead>
+                            <tr>
+                                <th class="px-4 py-3 text-left">Nombre</th>
+                                <th class="px-4 py-3 text-center">B1</th>
+                                <th class="px-4 py-3 text-center">Pts</th>
+                                <th class="px-4 py-3 text-center">B2</th>
+                                <th class="px-4 py-3 text-center">Pts</th>
+                                <th class="px-4 py-3 text-center">B3</th>
+                                <th class="px-4 py-3 text-center">Pts</th>
+                                <th class="px-4 py-3 text-center">B4</th>
+                                <th class="px-4 py-3 text-center">Pts</th>
+                                <th class="px-4 py-3 text-center font-bold">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaRanking">
+                            <!-- Se llena dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- PANEL ADMIN -->
+    <section id="admin" class="px-4 pb-12">
+        <div class="max-w-6xl mx-auto">
+            <div class="card p-6 sm:p-8 fade-in">
+                <h3 class="text-2xl font-bold mb-6 flex items-center">
+                    <span class="mr-2">🔐</span> Panel de Administrador
+                </h3>
+                
+                <!-- Input de clave -->
+                <div id="adminLogin" class="mb-6">
+                    <input type="password" id="inputClaveAdmin" placeholder="Ingresa la clave" 
+                           class="w-full px-4 py-3 rounded-lg bg-white bg-opacity-10 border border-white border-opacity-20 text-white placeholder-gray-400 focus:outline-none focus:border-red-400 transition-colors">
+                    <button id="btnAccederAdmin" class="btn-primary mt-3 w-full py-3 rounded-lg font-semibold">Acceder</button>
+                </div>
+                
+                <!-- Panel Admin (oculto inicialmente) -->
+                <div id="panelAdmin" class="hidden">
+                    <!-- Tabs -->
+                    <div class="flex flex-wrap border-b border-white border-opacity-20 mb-6">
+                        <button class="tab-btn active px-4 py-2 font-semibold" data-tab="config">Configuración</button>
+                        <button class="tab-btn px-4 py-2 font-semibold" data-tab="resultados">Resultados</button>
+                        <button class="tab-btn px-4 py-2 font-semibold" data-tab="editar">Editar Jugada</button>
+                        <button class="tab-btn px-4 py-2 font-semibold" data-tab="exportar">Exportar</button>
+                    </div>
+                    
+                    <!-- Tab: Configuración -->
+                    <div id="tab-config" class="tab-content active">
+                        <h4 class="text-xl font-bold mb-4">Configuración del Juego</h4>
+                        <button id="btnCerrarJugadas" class="btn-primary px-6 py-3 rounded-lg font-semibold">
+                            🔒 Cerrar Jugadas
+                        </button>
+                        <p class="text-gray-400 mt-3 text-sm">Esto bloqueará las apuestas y habilitará la tabla general</p>
+                    </div>
+                    
+                    <!-- Tab: Resultados -->
+                    <div id="tab-resultados" class="tab-content">
+                        <h4 class="text-xl font-bold mb-4">Carga de Resultados</h4>
+                        <div id="contenedorResultados"></div>
+                        <button id="btnProcesarResultados" class="btn-primary mt-4 px-6 py-3 rounded-lg font-semibold">
+                            Procesar Resultados y Puntuar
+                        </button>
+                        <button id="btnCopiarWhatsApp" class="btn-secondary mt-3 px-6 py-3 rounded-lg font-semibold">
+                            📋 Copiar formato para WhatsApp
+                        </button>
+                    </div>
+                    
+                    <!-- Tab: Editar Jugada -->
+                    <div id="tab-editar" class="tab-content">
+                        <h4 class="text-xl font-bold mb-4">Gestión de Participantes</h4>
+                        <div id="listaParticipantes"></div>
+                    </div>
+                    
+                    <!-- Tab: Exportar -->
+                    <div id="tab-exportar" class="tab-content">
+                        <h4 class="text-xl font-bold mb-4">Exportar y Compartir</h4>
+                        <button id="btnCopiarRanking" class="btn-primary px-6 py-3 rounded-lg font-semibold">
+                            📋 Copiar Ranking al portapapeles
+                        </button>
+                        <button id="btnDescargarPDF" class="btn-secondary mt-3 px-6 py-3 rounded-lg font-semibold">
+                            📄 Descargar Ranking en PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- CONTENEDOR OCULTO PARA GENERAR IMAGEN -->
+    <div id="contenedorImagen" class="hidden"></div>
+    
+    <!-- SCRIPT PRINCIPAL -->
+    <script>
+        // ============================================
+        // DATOS DE LOS BLOQUES
+        // ============================================
+        const bloquesData = [
+            {
+                id: 1,
+                equipo1: "Francia",
+                equipo2: "Marruecos",
+                bandera1: "🇫🇷",
+                bandera2: "🇲🇦",
+                fecha: "Jue 09, 4pm",
+                preguntas: [
+                    "Empate 0-0 en 90'",
+                    "A Francia le anulan al menos un gol en el partido",
+                    "Penal en 1T",
+                    "Gol antes min 15'"
+                ]
+            },
+            {
+                id: 2,
+                equipo1: "España",
+                equipo2: "Bélgica",
+                bandera1: "🇪🇸",
+                bandera2: "🇧🇪",
+                fecha: "Vie 10, 3pm",
+                preguntas: [
+                    "Más de 5 goles en 90'",
+                    "Ambos marcan al descanso",
+                    "BEL anota en ambas mitades",
+                    "ESP anota primero"
+                ]
+            },
+            {
+                id: 3,
+                equipo1: "Noruega",
+                equipo2: "Inglaterra",
+                bandera1: "🇳🇴",
+                bandera2: "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+                fecha: "Sáb 11, 5pm",
+                preguntas: [
+                    "Haaland anota 2+ goles 90'",
+                    "ING gana sin recibir goles",
+                    "Empate en 90'",
+                    "2T menos goles que 1T"
+                ]
+            },
+            {
+                id: 4,
+                equipo1: "Argentina",
+                equipo2: "Suiza",
+                bandera1: "🇦🇷",
+                bandera2: "🇨🇭",
+                fecha: "Sáb 11, 9pm",
+                preguntas: [
+                    "Se define en penales",
+                    "SUI gana 1-0 en 90'",
+                    "ARG pierde al descanso",
+                    "ARG anota primero"
+                ]
+            }
+        ];
+
+        // ============================================
+        // VARIABLES GLOBALES
+        // ============================================
+        let usuarioActual = null;
+        let jugadasUsuario = {};
+        let bloqueActual = 1;
+        let jugadasCerradas = false;
+
+        // ============================================
+        // INICIALIZACIÓN
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            inicializarEventos();
+            cargarRanking();
+            verificarEstadoJugadas();
+        });
+
+        function inicializarEventos() {
+            // Botón participar
+            document.getElementById('btnParticipar').addEventListener('click', () => {
+                document.getElementById('modalNombre').classList.remove('hidden');
+            });
+
+            // Modal nombre
+            document.getElementById('btnCancelarNombre').addEventListener('click', () => {
+                document.getElementById('modalNombre').classList.add('hidden');
+            });
+
+            document.getElementById('btnConfirmarNombre').addEventListener('click', confirmarNombre);
+
+            // Admin
+            document.getElementById('btnAccederAdmin').addEventListener('click', accederAdmin);
+
+            // Tabs admin
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    btn.classList.add('active');
+                    document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
+                });
+            });
+
+            // Botones admin
+            document.getElementById('btnCerrarJugadas').addEventListener('click', cerrarJugadas);
+            document.getElementById('btnProcesarResultados').addEventListener('click', procesarResultados);
+            document.getElementById('btnCopiarWhatsApp').addEventListener('click', copiarWhatsApp);
+            document.getElementById('btnCopiarRanking').addEventListener('click', copiarRanking);
+            document.getElementById('btnDescargarPDF').addEventListener('click', descargarPDF);
+
+            // Descargar imagen usuario
+            document.getElementById('btnDescargarImagen').addEventListener('click', descargarImagenUsuario);
+        }
+
+        // ============================================
+        // GESTIÓN DE NOMBRE Y JUGADAS
+        // ============================================
+        async function confirmarNombre() {
+            const nombre = document.getElementById('inputNombre').value.trim();
+            if (!nombre) {
+                mostrarToast('Por favor ingresa tu nombre', 'error');
+                return;
+            }
+
+            // Verificar si el nombre ya existe
+            const nombreFinal = await verificarNombreUnico(nombre);
+            usuarioActual = nombreFinal;
+
+            document.getElementById('modalNombre').classList.add('hidden');
+            document.getElementById('inicio').classList.add('hidden');
+            document.getElementById('seccionJuego').classList.remove('hidden');
+
+            mostrarBloque(1);
+        }
+
+        async function verificarNombreUnico(nombre) {
+            const db = window.db;
+            const { collection, getDocs } = window.firestore;
+            const querySnapshot = await getDocs(collection(db, 'participantes'));
+            
+            let nombreFinal = nombre;
+            let contador = 2;
+            const nombresExistentes = [];
+
+            querySnapshot.forEach(doc => {
+                nombresExistentes.push(doc.data().nombre);
+            });
+
+            while (nombresExistentes.includes(nombreFinal)) {
+                nombreFinal = `${nombre}_${String(contador).padStart(2, '0')}`;
+                contador++;
+            }
+
+            return nombreFinal;
+        }
+
+        function mostrarBloque(numBloque) {
+            const bloque = bloquesData[numBloque - 1];
+            const contenedor = document.getElementById('contenedorBloques');
+            
+            contenedor.innerHTML = `
+                <div class="bloque-card card p-6 sm:p-8 fade-in">
+                    <div class="text-center mb-6">
+                        <h3 class="text-2xl sm:text-3xl font-bold mb-2">
+                            ${bloque.bandera1} ${bloque.equipo1} vs ${bloque.equipo2} ${bloque.bandera2}
+                        </h3>
+                        <p class="text-gray-400">${bloque.fecha}</p>
+                        <p class="text-sm text-yellow-400 mt-2">Bloque ${numBloque} de 4</p>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        ${bloque.preguntas.map((pregunta, idx) => `
+                            <div class="bg-white bg-opacity-5 p-4 rounded-lg">
+                                <p class="font-semibold mb-3">${idx + 1}. ${pregunta}</p>
+                                <div class="flex space-x-3">
+                                    <button class="btn-sino btn-si flex-1" data-bloque="${numBloque}" data-pregunta="${idx}" data-respuesta="true">
+                                        SÍ
+                                    </button>
+                                    <button class="btn-sino btn-no flex-1" data-bloque="${numBloque}" data-pregunta="${idx}" data-respuesta="false">
+                                        NO
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <button id="btnEnviarBloque" class="btn-primary w-full mt-6 py-4 rounded-lg font-bold text-lg" disabled>
+                        Enviar Bloque ${numBloque}
+                    </button>
+                </div>
+            `;
+
+            // Event listeners para botones Sí/No
+            contenedor.querySelectorAll('.btn-sino').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const bloque = btn.dataset.bloque;
+                    const pregunta = btn.dataset.pregunta;
+                    const respuesta = btn.dataset.respuesta === 'true';
+
+                    // Deseleccionar otros botones de la misma pregunta
+                    const hermanos = btn.parentElement.querySelectorAll('.btn-sino');
+                    hermanos.forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+
+                    // Guardar respuesta
+                    if (!jugadasUsuario[bloque]) jugadasUsuario[bloque] = [];
+                    jugadasUsuario[bloque][pregunta] = respuesta;
+
+                    // Verificar si todas las preguntas están respondidas
+                    verificarBloqueCompleto(bloque);
+                });
+            });
+
+            // Event listener para enviar bloque
+            document.getElementById('btnEnviarBloque').addEventListener('click', () => enviarBloque(numBloque));
+        }
+
+        function verificarBloqueCompleto(numBloque) {
+            const respuestas = jugadasUsuario[numBloque];
+            if (respuestas && respuestas.length === 4 && respuestas.every(r => r !== undefined)) {
+                document.getElementById('btnEnviarBloque').disabled = false;
+            }
+        }
+
+        async function enviarBloque(numBloque) {
+            const db = window.db;
+            const { collection, doc, setDoc } = window.firestore;
+
+            // Guardar en Firebase
+            await setDoc(doc(db, 'participantes', usuarioActual), {
+                nombre: usuarioActual,
+                jugadas: jugadasUsuario,
+                timestamp: new Date().toISOString()
+            });
+
+            mostrarToast(`¡Bloque ${numBloque} enviado!`, 'success');
+
+            // Pasar al siguiente bloque o mostrar resumen
+            if (numBloque < 4) {
+                bloqueActual = numBloque + 1;
+                document.getElementById('contenedorBloques').innerHTML = '';
+                setTimeout(() => mostrarBloque(bloqueActual), 500);
+            } else {
+                // Completó todos los bloques
+                document.getElementById('seccionJuego').classList.add('hidden');
+                document.getElementById('seccionResumen').classList.remove('hidden');
+                mostrarResumenFinal();
+            }
+        }
+
+        function mostrarResumenFinal() {
+            const resumen = document.getElementById('resumenJugadas');
+            let html = '<div class="space-y-4">';
+
+            bloquesData.forEach((bloque, idx) => {
+                const numBloque = idx + 1;
+                const respuestas = jugadasUsuario[numBloque];
+                
+                html += `
+                    <div class="bg-white bg-opacity-5 p-4 rounded-lg">
+                        <h4 class="font-bold text-lg mb-2">${bloque.bandera1} ${bloque.equipo1} vs ${bloque.equipo2} ${bloque.bandera2}</h4>
+                        <div class="space-y-2">
+                            ${bloque.preguntas.map((pregunta, pIdx) => `
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm">${pregunta}</span>
+                                    <span class="font-bold ${respuestas[pIdx] ? 'text-green-400' : 'text-red-400'}">
+                                        ${respuestas[pIdx] ? 'SÍ' : 'NO'}
+                                    </span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            resumen.innerHTML = html;
+        }
+
+        // ============================================
+        // GENERACIÓN DE IMAGEN
+        // ============================================
+        function descargarImagenUsuario() {
+            const contenedor = document.getElementById('contenedorImagen');
+            
+            let html = `
+                <div class="imagen-descarga">
+                    <h2 class="text-3xl font-bold text-center mb-6 bg-gradient-to-r from-yellow-400 to-red-400 bg-clip-text text-transparent">
+                        4tos de Final - Mi Jugada
+                    </h2>
+                    <p class="text-center text-xl mb-6">Jugador: <strong>${usuarioActual}</strong></p>
+                    <div class="space-y-4">
+            `;
+
+            bloquesData.forEach((bloque, idx) => {
+                const numBloque = idx + 1;
+                const respuestas = jugadasUsuario[numBloque];
+                
+                html += `
+                    <div class="bg-white bg-opacity-10 p-4 rounded-lg">
+                        <h4 class="font-bold text-lg mb-2">${bloque.bandera1} ${bloque.equipo1} vs ${bloque.equipo2} ${bloque.bandera2}</h4>
+                        <div class="space-y-1 text-sm">
+                            ${bloque.preguntas.map((pregunta, pIdx) => `
+                                <div class="flex justify-between">
+                                    <span>${pregunta}</span>
+                                    <span class="font-bold">${respuestas[pIdx] ? '✓ SÍ' : '✗ NO'}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `
+                    </div>
+                    <p class="text-center text-sm text-gray-400 mt-6">Generado el ${new Date().toLocaleDateString('es-ES')}</p>
+                </div>
+            `;
+
+            contenedor.innerHTML = html;
+            contenedor.classList.remove('hidden');
+
+            html2canvas(contenedor, { scale: 2, backgroundColor: '#1a1a2e' }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `4tos_Final_${usuarioActual}.jpg`;
+                link.href = canvas.toDataURL('image/jpeg', 0.95);
+                link.click();
+                contenedor.classList.add('hidden');
+                mostrarToast('¡Imagen descargada!', 'success');
+            });
+        }
+
+        // ============================================
+        // PANEL ADMIN
+        // ============================================
+        function accederAdmin() {
+            const clave = document.getElementById('inputClaveAdmin').value;
+            if (clave === '111180') {
+                document.getElementById('adminLogin').classList.add('hidden');
+                document.getElementById('panelAdmin').classList.remove('hidden');
+                cargarResultadosAdmin();
+                cargarParticipantesAdmin();
+                mostrarToast('Acceso concedido', 'success');
+            } else {
+                mostrarToast('Clave incorrecta', 'error');
+            }
+        }
+
+        async function cerrarJugadas() {
+            const db = window.db;
+            const { doc, setDoc } = window.firestore;
+            
+            await setDoc(doc(db, 'config', 'estado'), {
+                jugadasCerradas: true,
+                fechaCierre: new Date().toISOString()
+            });
+
+            jugadasCerradas = true;
+            mostrarToast('Jugadas cerradas', 'success');
+        }
+
+        async function verificarEstadoJugadas() {
+            const db = window.db;
+            const { doc, getDoc } = window.firestore;
+            
+            try {
+                const docSnap = await getDoc(doc(db, 'config', 'estado'));
+                if (docSnap.exists() && docSnap.data().jugadasCerradas) {
+                    jugadasCerradas = true;
+                }
+            } catch (e) {
+                console.log('No hay config aún');
+            }
+        }
+
+        function cargarResultadosAdmin() {
+            const contenedor = document.getElementById('contenedorResultados');
+            let html = '';
+
+            bloquesData.forEach((bloque, idx) => {
+                const numBloque = idx + 1;
+                html += `
+                    <div class="bg-white bg-opacity-5 p-4 rounded-lg mb-4">
+                        <h4 class="font-bold mb-3">${bloque.bandera1} ${bloque.equipo1} vs ${bloque.equipo2} ${bloque.bandera2}</h4>
+                        <div class="space-y-2">
+                            ${bloque.preguntas.map((pregunta, pIdx) => `
+                                <div class="flex items-center space-x-3">
+                                    <span class="flex-1 text-sm">${pregunta}</span>
+                                    <select class="resultado-select bg-white bg-opacity-10 px-3 py-1 rounded" data-bloque="${numBloque}" data-pregunta="${pIdx}">
+                                        <option value="">Seleccionar</option>
+                                        <option value="true">SÍ</option>
+                                        <option value="false">NO</option>
+                                    </select>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            contenedor.innerHTML = html;
+        }
+
+        async function procesarResultados() {
+            const db = window.db;
+            const { doc, setDoc, collection, getDocs } = window.firestore;
+            
+            const resultados = {};
+            document.querySelectorAll('.resultado-select').forEach(select => {
+                const bloque = select.dataset.bloque;
+                const pregunta = select.dataset.pregunta;
+                const valor = select.value;
+                
+                if (!resultados[bloque]) resultados[bloque] = [];
+                resultados[bloque][pregunta] = valor === 'true' ? true : (valor === 'false' ? false : null);
+            });
+
+            // Guardar resultados
+            await setDoc(doc(db, 'resultados', 'oficial'), {
+                resultados: resultados,
+                timestamp: new Date().toISOString()
+            });
+
+            // Calcular puntajes
+            const participantesSnap = await getDocs(collection(db, 'participantes'));
+            const participantes = [];
+            
+            participantesSnap.forEach(docSnap => {
+                const data = docSnap.data();
+                const puntajes = calcularPuntajes(data.jugadas, resultados);
+                participantes.push({
+                    nombre: data.nombre,
+                    jugadas: data.jugadas,
+                    puntajes: puntajes
+                });
+            });
+
+            // Actualizar participantes con puntajes
+            for (const p of participantes) {
+                await setDoc(doc(db, 'participantes', p.nombre), {
+                    nombre: p.nombre,
+                    jugadas: p.jugadas,
+                    puntajes: p.puntajes,
+                    timestamp: new Date().toISOString()
+                });
+            }
+
+            mostrarToast('Resultados procesados y puntajes calculados', 'success');
+            cargarRanking();
+        }
+
+        function calcularPuntajes(jugadas, resultados) {
+            const puntajes = {};
+            let total = 0;
+
+            for (let b = 1; b <= 4; b++) {
+                let ptsBloque = 0;
+                if (jugadas[b] && resultados[b]) {
+                    for (let p = 0; p < 4; p++) {
+                        if (jugadas[b][p] === resultados[b][p]) {
+                            ptsBloque++;
+                        }
+                    }
+                }
+                puntajes[b] = ptsBloque;
+                total += ptsBloque;
+            }
+
+            puntajes.total = total;
+            return puntajes;
+        }
+
+        async function cargarParticipantesAdmin() {
+            const db = window.db;
+            const { collection, getDocs, doc, setDoc } = window.firestore;
+            
+            const participantesSnap = await getDocs(collection(db, 'participantes'));
+            const lista = document.getElementById('listaParticipantes');
+            let html = '<div class="space-y-3">';
+
+            participantesSnap.forEach(docSnap => {
+                const data = docSnap.data();
+                html += `
+                    <div class="bg-white bg-opacity-5 p-4 rounded-lg">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="font-bold">${data.nombre}</h4>
+                            <div class="flex space-x-2">
+                                <button class="btn-secondary px-3 py-1 rounded text-sm" onclick="regenerarImagen('${data.nombre}')">
+                                    📷 Imagen
+                                </button>
+                            </div>
+                        </div>
+                        <p class="text-sm text-gray-400">${new Date(data.timestamp).toLocaleString('es-ES')}</p>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            lista.innerHTML = html;
+        }
+
+        async function regenerarImagen(nombre) {
+            const db = window.db;
+            const { doc, getDoc } = window.firestore;
+            
+            const docSnap = await getDoc(doc(db, 'participantes', nombre));
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                usuarioActual = nombre;
+                jugadasUsuario = data.jugadas;
+                descargarImagenUsuario();
+            }
+        }
+
+        function copiarWhatsApp() {
+            const db = window.db;
+            const { collection, getDocs } = window.firestore;
+            
+            getDocs(collection(db, 'resultados')).then(snapshot => {
+                if (snapshot.empty) {
+                    mostrarToast('No hay resultados cargados', 'error');
+                    return;
+                }
+
+                const resultados = snapshot.docs[0].data().resultados;
+                let texto = '🏆 *4TOS DE FINAL - RESULTADOS* 🏆\n\n';
+
+                bloquesData.forEach((bloque, idx) => {
+                    const numBloque = idx + 1;
+                    texto += `${bloque.bandera1} *${bloque.equipo1} vs ${bloque.equipo2}* ${bloque.bandera2}\n`;
+                    bloque.preguntas.forEach((pregunta, pIdx) => {
+                        const respuesta = resultados[numBloque][pIdx];
+                        texto += `${respuesta ? '✓' : '✗'} ${pregunta}\n`;
+                    });
+                    texto += '\n';
+                });
+
+                navigator.clipboard.writeText(texto).then(() => {
+                    mostrarToast('Copiado al portapapeles', 'success');
+                });
+            });
+        }
+
+        function copiarRanking() {
+            const db = window.db;
+            const { collection, getDocs } = window.firestore;
+            
+            getDocs(collection(db, 'participantes')).then(snapshot => {
+                const participantes = [];
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    if (data.puntajes) {
+                        participantes.push({
+                            nombre: data.nombre,
+                            puntajes: data.puntajes
+                        });
+                    }
+                });
+
+                participantes.sort((a, b) => b.puntajes.total - a.puntajes.total);
+
+                let texto = '🏆 *RANKING 4TOS DE FINAL* 🏆\n\n';
+                participantes.forEach((p, idx) => {
+                    texto += `${idx + 1}. *${p.nombre}* - ${p.puntajes.total} pts\n`;
+                    texto += `   B1:${p.puntajes[1]} B2:${p.puntajes[2]} B3:${p.puntajes[3]} B4:${p.puntajes[4]}\n`;
+                });
+
+                navigator.clipboard.writeText(texto).then(() => {
+                    mostrarToast('Ranking copiado', 'success');
+                });
+            });
+        }
+
+        function descargarPDF() {
+            mostrarToast('Función PDF en desarrollo', 'error');
+        }
+
+        // ============================================
+        // CARGAR RANKING
+        // ============================================
+        async function cargarRanking() {
+            const db = window.db;
+            const { collection, getDocs } = window.firestore;
+            
+            const participantesSnap = await getDocs(collection(db, 'participantes'));
+            const participantes = [];
+
+            participantesSnap.forEach(docSnap => {
+                const data = docSnap.data();
+                participantes.push(data);
+            });
+
+            // Tabla de transparencia
+            const tablaTransparencia = document.getElementById('tablaTransparencia');
+            let htmlTransparencia = '';
+            participantes.forEach(p => {
+                htmlTransparencia += `
+                    <tr>
+                        <td class="px-4 py-3 font-semibold">${p.nombre}</td>
+                        <td class="px-4 py-3 text-center">${p.jugadas[1] ? p.jugadas[1].map(r => r ? 'SÍ' : 'NO').join(', ') : '-'}</td>
+                        <td class="px-4 py-3 text-center">${p.jugadas[2] ? p.jugadas[2].map(r => r ? 'SÍ' : 'NO').join(', ') : '-'}</td>
+                        <td class="px-4 py-3 text-center">${p.jugadas[3] ? p.jugadas[3].map(r => r ? 'SÍ' : 'NO').join(', ') : '-'}</td>
+                        <td class="px-4 py-3 text-center">${p.jugadas[4] ? p.jugadas[4].map(r => r ? 'SÍ' : 'NO').join(', ') : '-'}</td>
+                    </tr>
+                `;
+            });
+            tablaTransparencia.innerHTML = htmlTransparencia;
+
+            // Tabla de ranking
+            const tablaRanking = document.getElementById('tablaRanking');
+            let htmlRanking = '';
+            
+            const conPuntajes = participantes.filter(p => p.puntajes);
+            conPuntajes.sort((a, b) => b.puntajes.total - a.puntajes.total);
+
+            conPuntajes.forEach(p => {
+                htmlRanking += `
+                    <tr>
+                        <td class="px-4 py-3 font-semibold">${p.nombre}</td>
+                        <td class="px-4 py-3 text-center">${p.puntajes[1]}</td>
+                        <td class="px-4 py-3 text-center">${p.puntajes[1]}</td>
+                        <td class="px-4 py-3 text-center">${p.puntajes[2]}</td>
+                        <td class="px-4 py-3 text-center">${p.puntajes[2]}</td>
+                        <td class="px-4 py-3 text-center">${p.puntajes[3]}</td>
+                        <td class="px-4 py-3 text-center">${p.puntajes[3]}</td>
+                        <td class="px-4 py-3 text-center">${p.puntajes[4]}</td>
+                        <td class="px-4 py-3 text-center">${p.puntajes[4]}</td>
+                        <td class="px-4 py-3 text-center font-bold text-yellow-400">${p.puntajes.total}</td>
+                    </tr>
+                `;
+            });
+            tablaRanking.innerHTML = htmlRanking;
+        }
+
+        // ============================================
+        // TOAST NOTIFICATIONS
+        // ============================================
+        function mostrarToast(mensaje, tipo = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${tipo === 'error' ? 'error' : ''}`;
+            toast.textContent = mensaje;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+    </script>
+    
+</body>
+</html>
