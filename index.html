@@ -11,7 +11,7 @@
     <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-        import { getFirestore, collection, doc, setDoc, getDocs, updateDoc, query, where } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, getDocs, updateDoc, query, where, getDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
         
         const firebaseConfig = {
             apiKey: "AIzaSyAW-UUmligtli8aLJtWeVhM1QdE1tTx7kM",
@@ -26,14 +26,13 @@
         const db = getFirestore(app);
         
         window.db = db;
-        window.firestore = { collection, doc, setDoc, getDocs, updateDoc, query, where };
+        window.firestore = { collection, doc, setDoc, getDocs, updateDoc, query, where, getDoc };
     </script>
     
     <!-- html2canvas para generar imágenes -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <style>
-        /* Paleta de colores personalizada */
         :root {
             --color-primary: #1a1a2e;
             --color-secondary: #16213e;
@@ -51,7 +50,6 @@
             min-height: 100vh;
         }
         
-        /* Animaciones */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -67,19 +65,10 @@
             50% { box-shadow: 0 0 40px rgba(233, 69, 96, 0.8); }
         }
         
-        .fade-in {
-            animation: fadeIn 0.6s ease-out;
-        }
+        .fade-in { animation: fadeIn 0.6s ease-out; }
+        .slide-in { animation: slideIn 0.5s ease-out; }
+        .pulse-glow { animation: pulse-glow 2s infinite; }
         
-        .slide-in {
-            animation: slideIn 0.5s ease-out;
-        }
-        
-        .pulse-glow {
-            animation: pulse-glow 2s infinite;
-        }
-        
-        /* Tarjetas */
         .card {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
@@ -94,7 +83,6 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
         
-        /* Botones */
         .btn-primary {
             background: linear-gradient(135deg, var(--color-highlight) 0%, #c73650 100%);
             transition: all 0.3s ease;
@@ -115,7 +103,6 @@
             box-shadow: 0 5px 15px rgba(15, 52, 96, 0.4);
         }
         
-        /* Tablas */
         .table-custom {
             background: rgba(255, 255, 255, 0.03);
             border-radius: 12px;
@@ -130,15 +117,9 @@
             letter-spacing: 0.05em;
         }
         
-        .table-custom tr {
-            transition: background 0.2s ease;
-        }
+        .table-custom tr { transition: background 0.2s ease; }
+        .table-custom tr:hover { background: rgba(255, 255, 255, 0.05); }
         
-        .table-custom tr:hover {
-            background: rgba(255, 255, 255, 0.05);
-        }
-        
-        /* Pestañas del admin */
         .tab-btn {
             transition: all 0.3s ease;
             border-bottom: 3px solid transparent;
@@ -154,21 +135,15 @@
             animation: fadeIn 0.4s ease-out;
         }
         
-        .tab-content.active {
-            display: block;
-        }
+        .tab-content.active { display: block; }
         
-        /* Bloques de partidos */
         .bloque-card {
             background: linear-gradient(135deg, rgba(15, 52, 96, 0.3) 0%, rgba(26, 26, 46, 0.5) 100%);
             border: 2px solid rgba(244, 196, 48, 0.2);
         }
         
-        .bloque-card:hover {
-            border-color: rgba(244, 196, 48, 0.5);
-        }
+        .bloque-card:hover { border-color: rgba(244, 196, 48, 0.5); }
         
-        /* Botones de Sí/No */
         .btn-sino {
             padding: 12px 24px;
             border-radius: 8px;
@@ -199,7 +174,6 @@
             transform: scale(1.05);
         }
         
-        /* Toast notifications */
         .toast {
             position: fixed;
             bottom: 20px;
@@ -214,35 +188,59 @@
             animation: slideIn 0.4s ease-out;
         }
         
-        .toast.error {
-            background: var(--color-highlight);
-        }
+        .toast.error { background: var(--color-highlight); }
         
-        /* Scrollbar personalizado */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--color-primary); }
+        ::-webkit-scrollbar-thumb { background: var(--color-accent); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--color-highlight); }
         
-        ::-webkit-scrollbar-track {
-            background: var(--color-primary);
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: var(--color-accent);
-            border-radius: 4px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--color-highlight);
-        }
-        
-        /* Imagen para descargar */
         .imagen-descarga {
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             padding: 40px;
             border-radius: 16px;
             color: white;
             width: 600px;
+        }
+        
+        /* ============================================ */
+        /* NUEVO: Estilos para el encabezado de equipos */
+        /* ============================================ */
+        .equipos-header {
+            background: linear-gradient(135deg, rgba(244, 196, 48, 0.1) 0%, rgba(233, 69, 96, 0.1) 100%);
+            border: 2px solid rgba(244, 196, 48, 0.3);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .equipo-nombre {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 8px;
+        }
+        
+        .vs-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--color-gold);
+            text-shadow: 0 0 10px rgba(244, 196, 48, 0.5);
+        }
+        
+        .bandera-grande {
+            font-size: 4rem;
+            display: block;
+            margin-bottom: 8px;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+        }
+        
+        .bloque-info {
+            text-align: center;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
     </style>
 </head>
@@ -357,7 +355,6 @@
                 <span class="mr-2">🏆</span> Tabla de Posiciones
             </h3>
             
-            <!-- Tabla de Transparencia -->
             <div class="card p-6 mb-6 fade-in">
                 <h4 class="text-xl font-bold mb-4">Tabla de Transparencia (Selecciones)</h4>
                 <div class="overflow-x-auto">
@@ -371,14 +368,11 @@
                                 <th class="px-4 py-3 text-center">Bloque 4</th>
                             </tr>
                         </thead>
-                        <tbody id="tablaTransparencia">
-                            <!-- Se llena dinámicamente -->
-                        </tbody>
+                        <tbody id="tablaTransparencia"></tbody>
                     </table>
                 </div>
             </div>
             
-            <!-- Ranking General -->
             <div class="card p-6 fade-in">
                 <h4 class="text-xl font-bold mb-4">Ranking General con Puntaje</h4>
                 <div class="overflow-x-auto">
@@ -397,9 +391,7 @@
                                 <th class="px-4 py-3 text-center font-bold">Total</th>
                             </tr>
                         </thead>
-                        <tbody id="tablaRanking">
-                            <!-- Se llena dinámicamente -->
-                        </tbody>
+                        <tbody id="tablaRanking"></tbody>
                     </table>
                 </div>
             </div>
@@ -414,16 +406,13 @@
                     <span class="mr-2">🔐</span> Panel de Administrador
                 </h3>
                 
-                <!-- Input de clave -->
                 <div id="adminLogin" class="mb-6">
                     <input type="password" id="inputClaveAdmin" placeholder="Ingresa la clave" 
                            class="w-full px-4 py-3 rounded-lg bg-white bg-opacity-10 border border-white border-opacity-20 text-white placeholder-gray-400 focus:outline-none focus:border-red-400 transition-colors">
                     <button id="btnAccederAdmin" class="btn-primary mt-3 w-full py-3 rounded-lg font-semibold">Acceder</button>
                 </div>
                 
-                <!-- Panel Admin (oculto inicialmente) -->
                 <div id="panelAdmin" class="hidden">
-                    <!-- Tabs -->
                     <div class="flex flex-wrap border-b border-white border-opacity-20 mb-6">
                         <button class="tab-btn active px-4 py-2 font-semibold" data-tab="config">Configuración</button>
                         <button class="tab-btn px-4 py-2 font-semibold" data-tab="resultados">Resultados</button>
@@ -431,7 +420,6 @@
                         <button class="tab-btn px-4 py-2 font-semibold" data-tab="exportar">Exportar</button>
                     </div>
                     
-                    <!-- Tab: Configuración -->
                     <div id="tab-config" class="tab-content active">
                         <h4 class="text-xl font-bold mb-4">Configuración del Juego</h4>
                         <button id="btnCerrarJugadas" class="btn-primary px-6 py-3 rounded-lg font-semibold">
@@ -440,7 +428,6 @@
                         <p class="text-gray-400 mt-3 text-sm">Esto bloqueará las apuestas y habilitará la tabla general</p>
                     </div>
                     
-                    <!-- Tab: Resultados -->
                     <div id="tab-resultados" class="tab-content">
                         <h4 class="text-xl font-bold mb-4">Carga de Resultados</h4>
                         <div id="contenedorResultados"></div>
@@ -452,13 +439,11 @@
                         </button>
                     </div>
                     
-                    <!-- Tab: Editar Jugada -->
                     <div id="tab-editar" class="tab-content">
                         <h4 class="text-xl font-bold mb-4">Gestión de Participantes</h4>
                         <div id="listaParticipantes"></div>
                     </div>
                     
-                    <!-- Tab: Exportar -->
                     <div id="tab-exportar" class="tab-content">
                         <h4 class="text-xl font-bold mb-4">Exportar y Compartir</h4>
                         <button id="btnCopiarRanking" class="btn-primary px-6 py-3 rounded-lg font-semibold">
@@ -473,14 +458,9 @@
         </div>
     </section>
     
-    <!-- CONTENEDOR OCULTO PARA GENERAR IMAGEN -->
     <div id="contenedorImagen" class="hidden"></div>
     
-    <!-- SCRIPT PRINCIPAL -->
     <script>
-        // ============================================
-        // DATOS DE LOS BLOQUES
-        // ============================================
         const bloquesData = [
             {
                 id: 1,
@@ -488,7 +468,7 @@
                 equipo2: "Marruecos",
                 bandera1: "🇫🇷",
                 bandera2: "🇲🇦",
-                fecha: "Jue 09, 4pm",
+                fecha: "Jueves 9 de julio de 2026, 4:00 p.m.",
                 preguntas: [
                     "Empate 0-0 en 90'",
                     "A Francia le anulan al menos un gol en el partido",
@@ -502,7 +482,7 @@
                 equipo2: "Bélgica",
                 bandera1: "🇪🇸",
                 bandera2: "🇧🇪",
-                fecha: "Vie 10, 3pm",
+                fecha: "Viernes 10 de julio de 2026, 3:00 p.m.",
                 preguntas: [
                     "Más de 5 goles en 90'",
                     "Ambos marcan al descanso",
@@ -516,7 +496,7 @@
                 equipo2: "Inglaterra",
                 bandera1: "🇳🇴",
                 bandera2: "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
-                fecha: "Sáb 11, 5pm",
+                fecha: "Sábado 11 de julio de 2026, 5:00 p.m.",
                 preguntas: [
                     "Haaland anota 2+ goles 90'",
                     "ING gana sin recibir goles",
@@ -530,7 +510,7 @@
                 equipo2: "Suiza",
                 bandera1: "🇦🇷",
                 bandera2: "🇨🇭",
-                fecha: "Sáb 11, 9pm",
+                fecha: "Sábado 11 de julio de 2026, 9:00 p.m.",
                 preguntas: [
                     "Se define en penales",
                     "SUI gana 1-0 en 90'",
@@ -540,17 +520,11 @@
             }
         ];
 
-        // ============================================
-        // VARIABLES GLOBALES
-        // ============================================
         let usuarioActual = null;
         let jugadasUsuario = {};
         let bloqueActual = 1;
         let jugadasCerradas = false;
 
-        // ============================================
-        // INICIALIZACIÓN
-        // ============================================
         document.addEventListener('DOMContentLoaded', () => {
             inicializarEventos();
             cargarRanking();
@@ -558,22 +532,17 @@
         });
 
         function inicializarEventos() {
-            // Botón participar
             document.getElementById('btnParticipar').addEventListener('click', () => {
                 document.getElementById('modalNombre').classList.remove('hidden');
             });
 
-            // Modal nombre
             document.getElementById('btnCancelarNombre').addEventListener('click', () => {
                 document.getElementById('modalNombre').classList.add('hidden');
             });
 
             document.getElementById('btnConfirmarNombre').addEventListener('click', confirmarNombre);
-
-            // Admin
             document.getElementById('btnAccederAdmin').addEventListener('click', accederAdmin);
 
-            // Tabs admin
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -583,20 +552,14 @@
                 });
             });
 
-            // Botones admin
             document.getElementById('btnCerrarJugadas').addEventListener('click', cerrarJugadas);
             document.getElementById('btnProcesarResultados').addEventListener('click', procesarResultados);
             document.getElementById('btnCopiarWhatsApp').addEventListener('click', copiarWhatsApp);
             document.getElementById('btnCopiarRanking').addEventListener('click', copiarRanking);
             document.getElementById('btnDescargarPDF').addEventListener('click', descargarPDF);
-
-            // Descargar imagen usuario
             document.getElementById('btnDescargarImagen').addEventListener('click', descargarImagenUsuario);
         }
 
-        // ============================================
-        // GESTIÓN DE NOMBRE Y JUGADAS
-        // ============================================
         async function confirmarNombre() {
             const nombre = document.getElementById('inputNombre').value.trim();
             if (!nombre) {
@@ -604,7 +567,6 @@
                 return;
             }
 
-            // Verificar si el nombre ya existe
             const nombreFinal = await verificarNombreUnico(nombre);
             usuarioActual = nombreFinal;
 
@@ -642,12 +604,27 @@
             
             contenedor.innerHTML = `
                 <div class="bloque-card card p-6 sm:p-8 fade-in">
-                    <div class="text-center mb-6">
-                        <h3 class="text-2xl sm:text-3xl font-bold mb-2">
-                            ${bloque.bandera1} ${bloque.equipo1} vs ${bloque.equipo2} ${bloque.bandera2}
-                        </h3>
-                        <p class="text-gray-400">${bloque.fecha}</p>
-                        <p class="text-sm text-yellow-400 mt-2">Bloque ${numBloque} de 4</p>
+                    <!-- ============================================ -->
+                    <!-- NUEVO: ENCABEZADO CON EQUIPOS Y BANDERAS     -->
+                    <!-- ============================================ -->
+                    <div class="equipos-header">
+                        <div class="flex items-center justify-center space-x-6 sm:space-x-12">
+                            <div class="text-center">
+                                <span class="bandera-grande">${bloque.bandera1}</span>
+                                <p class="equipo-nombre text-yellow-400">${bloque.equipo1}</p>
+                            </div>
+                            <div class="text-center">
+                                <span class="vs-text">VS</span>
+                            </div>
+                            <div class="text-center">
+                                <span class="bandera-grande">${bloque.bandera2}</span>
+                                <p class="equipo-nombre text-red-400">${bloque.equipo2}</p>
+                            </div>
+                        </div>
+                        <div class="bloque-info">
+                            <p class="text-gray-300 text-sm">${bloque.fecha}</p>
+                            <p class="text-xs text-yellow-400 mt-2 font-semibold uppercase tracking-wider">Bloque ${numBloque} de 4</p>
+                        </div>
                     </div>
                     
                     <div class="space-y-4">
@@ -672,28 +649,23 @@
                 </div>
             `;
 
-            // Event listeners para botones Sí/No
             contenedor.querySelectorAll('.btn-sino').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const bloque = btn.dataset.bloque;
                     const pregunta = btn.dataset.pregunta;
                     const respuesta = btn.dataset.respuesta === 'true';
 
-                    // Deseleccionar otros botones de la misma pregunta
                     const hermanos = btn.parentElement.querySelectorAll('.btn-sino');
                     hermanos.forEach(b => b.classList.remove('selected'));
                     btn.classList.add('selected');
 
-                    // Guardar respuesta
                     if (!jugadasUsuario[bloque]) jugadasUsuario[bloque] = [];
                     jugadasUsuario[bloque][pregunta] = respuesta;
 
-                    // Verificar si todas las preguntas están respondidas
                     verificarBloqueCompleto(bloque);
                 });
             });
 
-            // Event listener para enviar bloque
             document.getElementById('btnEnviarBloque').addEventListener('click', () => enviarBloque(numBloque));
         }
 
@@ -708,7 +680,6 @@
             const db = window.db;
             const { collection, doc, setDoc } = window.firestore;
 
-            // Guardar en Firebase
             await setDoc(doc(db, 'participantes', usuarioActual), {
                 nombre: usuarioActual,
                 jugadas: jugadasUsuario,
@@ -717,13 +688,11 @@
 
             mostrarToast(`¡Bloque ${numBloque} enviado!`, 'success');
 
-            // Pasar al siguiente bloque o mostrar resumen
             if (numBloque < 4) {
                 bloqueActual = numBloque + 1;
                 document.getElementById('contenedorBloques').innerHTML = '';
                 setTimeout(() => mostrarBloque(bloqueActual), 500);
             } else {
-                // Completó todos los bloques
                 document.getElementById('seccionJuego').classList.add('hidden');
                 document.getElementById('seccionResumen').classList.remove('hidden');
                 mostrarResumenFinal();
@@ -759,9 +728,6 @@
             resumen.innerHTML = html;
         }
 
-        // ============================================
-        // GENERACIÓN DE IMAGEN
-        // ============================================
         function descargarImagenUsuario() {
             const contenedor = document.getElementById('contenedorImagen');
             
@@ -812,9 +778,6 @@
             });
         }
 
-        // ============================================
-        // PANEL ADMIN
-        // ============================================
         function accederAdmin() {
             const clave = document.getElementById('inputClaveAdmin').value;
             if (clave === '111180') {
@@ -897,13 +860,11 @@
                 resultados[bloque][pregunta] = valor === 'true' ? true : (valor === 'false' ? false : null);
             });
 
-            // Guardar resultados
             await setDoc(doc(db, 'resultados', 'oficial'), {
                 resultados: resultados,
                 timestamp: new Date().toISOString()
             });
 
-            // Calcular puntajes
             const participantesSnap = await getDocs(collection(db, 'participantes'));
             const participantes = [];
             
@@ -917,7 +878,6 @@
                 });
             });
 
-            // Actualizar participantes con puntajes
             for (const p of participantes) {
                 await setDoc(doc(db, 'participantes', p.nombre), {
                     nombre: p.nombre,
@@ -1057,9 +1017,6 @@
             mostrarToast('Función PDF en desarrollo', 'error');
         }
 
-        // ============================================
-        // CARGAR RANKING
-        // ============================================
         async function cargarRanking() {
             const db = window.db;
             const { collection, getDocs } = window.firestore;
@@ -1072,7 +1029,6 @@
                 participantes.push(data);
             });
 
-            // Tabla de transparencia
             const tablaTransparencia = document.getElementById('tablaTransparencia');
             let htmlTransparencia = '';
             participantes.forEach(p => {
@@ -1088,7 +1044,6 @@
             });
             tablaTransparencia.innerHTML = htmlTransparencia;
 
-            // Tabla de ranking
             const tablaRanking = document.getElementById('tablaRanking');
             let htmlRanking = '';
             
@@ -1114,9 +1069,6 @@
             tablaRanking.innerHTML = htmlRanking;
         }
 
-        // ============================================
-        // TOAST NOTIFICATIONS
-        // ============================================
         function mostrarToast(mensaje, tipo = 'success') {
             const toast = document.createElement('div');
             toast.className = `toast ${tipo === 'error' ? 'error' : ''}`;
