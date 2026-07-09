@@ -262,6 +262,12 @@
             animation: scaleIn 0.3s ease;
         }
         
+        .modal-content-lg {
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
         .toast {
             position: fixed;
             top: 20px;
@@ -703,6 +709,47 @@
         </div>
     </div>
     
+    <!-- MODAL EDITAR PARTICIPANTE -->
+    <div id="modal-editar" class="modal-overlay hidden">
+        <div class="modal-content modal-content-lg">
+            <div class="mb-6">
+                <h3 class="font-titulo text-2xl titulo-gradient mb-4">
+                    EDITAR PARTICIPANTE
+                </h3>
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-white/80 mb-2">
+                        Nombre del Participante
+                    </label>
+                    <input 
+                        type="text" 
+                        id="input-editar-nombre" 
+                        class="input-custom" 
+                        placeholder="Nuevo nombre"
+                        maxlength="20"
+                        autocomplete="off"
+                    >
+                </div>
+            </div>
+            
+            <div id="editar-bloques-container" class="space-y-4 mb-6"></div>
+            
+            <div class="flex flex-col sm:flex-row gap-3">
+                <button 
+                    id="btn-editar-cancelar" 
+                    class="btn-secondary flex-1 py-3 rounded-xl font-semibold"
+                >
+                    Cancelar
+                </button>
+                <button 
+                    id="btn-editar-guardar" 
+                    class="btn-success flex-1 py-3 rounded-xl font-semibold"
+                >
+                    Guardar Cambios
+                </button>
+            </div>
+        </div>
+    </div>
+    
     <div id="toast-container"></div>
     
     <script type="module">
@@ -771,7 +818,8 @@
             usuarioActual: null,
             bloqueActual: 1,
             respuestasTemporales: {},
-            modoAdmin: false
+            modoAdmin: false,
+            participanteEditando: null
         };
         
         function respuestasIguales(a, b) {
@@ -1616,7 +1664,172 @@
             }
         }
         
-        window.editarParticipante = async (id) => { mostrarToast('Funcion en desarrollo', 'info'); };
+        // ============================================
+        // FUNCIÓN EDITAR PARTICIPANTE (COMPLETA)
+        // ============================================
+        window.editarParticipante = async (id) => {
+            try {
+                const docSnap = await getDoc(doc(db, 'participantes', id));
+                if (!docSnap.exists()) {
+                    mostrarToast('Participante no encontrado', 'danger');
+                    return;
+                }
+                
+                const data = docSnap.data();
+                estado.participanteEditando = {
+                    id: id,
+                    nombreOriginal: data.nombre,
+                    respuestas: data.respuestas || {}
+                };
+                
+                // Cargar nombre actual
+                document.getElementById('input-editar-nombre').value = data.nombre;
+                
+                // Cargar bloques para edición
+                const editarContainer = document.getElementById('editar-bloques-container');
+                editarContainer.innerHTML = '';
+                
+                PARTIDOS.forEach((partido, index) => {
+                    const bloqueNum = index + 1;
+                    const bloqueKey = `bloque_${bloqueNum}`;
+                    const respuestas = data.respuestas[bloqueKey] || {};
+                    
+                    const bloqueDiv = document.createElement('div');
+                    bloqueDiv.className = 'glass p-4';
+                    
+                    let html = `
+                        <h4 class="font-semibold text-yellow-400 mb-3">
+                            BLOQUE ${bloqueNum}: ${partido.local} vs ${partido.visitante}
+                        </h4>
+                        <div class="space-y-3">
+                    `;
+                    
+                    partido.preguntas.forEach((pregunta, pIdx) => {
+                        const respuestaActual = respuestas[pregunta.id] || '';
+                        html += `
+                            <div class="glass p-3">
+                                <p class="text-sm text-white/80 mb-2">
+                                    <span class="text-yellow-400 font-numero">P${pIdx + 1}:</span> ${pregunta.texto}
+                                </p>
+                                <div class="flex flex-wrap gap-2">
+                                    <label class="radio-custom text-xs ${respuestasIguales(respuestaActual, 'Si') ? 'selected' : ''}" 
+                                           data-bloque="${bloqueKey}" data-pregunta="${pregunta.id}" data-respuesta="Si">
+                                        <input type="radio" name="editar_${bloqueKey}_${pregunta.id}" value="Si" ${respuestasIguales(respuestaActual, 'Si') ? 'checked' : ''}>
+                                        <span>Si</span>
+                                    </label>
+                                    <label class="radio-custom text-xs ${respuestasIguales(respuestaActual, 'No') ? 'selected' : ''}" 
+                                           data-bloque="${bloqueKey}" data-pregunta="${pregunta.id}" data-respuesta="No">
+                                        <input type="radio" name="editar_${bloqueKey}_${pregunta.id}" value="No" ${respuestasIguales(respuestaActual, 'No') ? 'checked' : ''}>
+                                        <span>No</span>
+                                    </label>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += `</div>`;
+                    bloqueDiv.innerHTML = html;
+                    editarContainer.appendChild(bloqueDiv);
+                });
+                
+                // Event listeners para los radio buttons de edición
+                editarContainer.querySelectorAll('.radio-custom').forEach(label => {
+                    label.addEventListener('click', () => {
+                        const bloque = label.dataset.bloque;
+                        const pregunta = label.dataset.pregunta;
+                        editarContainer.querySelectorAll(`.radio-custom[data-bloque="${bloque}"][data-pregunta="${pregunta}"]`).forEach(l => {
+                            l.classList.remove('selected');
+                        });
+                        label.classList.add('selected');
+                        label.querySelector('input').checked = true;
+                    });
+                });
+                
+                // Mostrar modal
+                document.getElementById('modal-editar').classList.remove('hidden');
+                
+            } catch (error) {
+                console.error('Error al cargar participante:', error);
+                mostrarToast('Error al cargar participante', 'danger');
+            }
+        };
+        
+        // Cancelar edición
+        document.getElementById('btn-editar-cancelar').addEventListener('click', () => {
+            document.getElementById('modal-editar').classList.add('hidden');
+            estado.participanteEditando = null;
+        });
+        
+        // Guardar cambios de edición
+        document.getElementById('btn-editar-guardar').addEventListener('click', async () => {
+            if (!estado.participanteEditando) {
+                mostrarToast('No hay participante seleccionado', 'danger');
+                return;
+            }
+            
+            const nuevoNombre = document.getElementById('input-editar-nombre').value.trim().toUpperCase();
+            if (!nuevoNombre) {
+                mostrarToast('El nombre no puede estar vacío', 'danger');
+                return;
+            }
+            
+            try {
+                // Verificar si el nombre cambió y si ya existe
+                if (nuevoNombre !== estado.participanteEditando.nombreOriginal) {
+                    const participantesSnapshot = await getDocs(collection(db, 'participantes'));
+                    const nombresExistentes = [];
+                    participantesSnapshot.forEach(doc => {
+                        if (doc.id !== estado.participanteEditando.id) {
+                            nombresExistentes.push(doc.data().nombre);
+                        }
+                    });
+                    
+                    if (nombresExistentes.includes(nuevoNombre)) {
+                        mostrarToast('Este nombre ya está en uso por otro participante', 'danger');
+                        return;
+                    }
+                }
+                
+                // Recopilar todas las respuestas editadas
+                const nuevasRespuestas = {};
+                const editarContainer = document.getElementById('editar-bloques-container');
+                
+                PARTIDOS.forEach((partido, index) => {
+                    const bloqueNum = index + 1;
+                    const bloqueKey = `bloque_${bloqueNum}`;
+                    nuevasRespuestas[bloqueKey] = {};
+                    
+                    partido.preguntas.forEach(pregunta => {
+                        const selected = editarContainer.querySelector(`.radio-custom.selected[data-bloque="${bloqueKey}"][data-pregunta="${pregunta.id}"]`);
+                        if (selected) {
+                            nuevasRespuestas[bloqueKey][pregunta.id] = selected.dataset.respuesta;
+                        }
+                    });
+                });
+                
+                // Actualizar en Firebase
+                const participanteRef = doc(db, 'participantes', estado.participanteEditando.id);
+                await updateDoc(participanteRef, {
+                    nombre: nuevoNombre,
+                    respuestas: nuevasRespuestas
+                });
+                
+                // Recalcular puntajes
+                await recalcularPuntajes();
+                
+                mostrarToast('Participante actualizado correctamente', 'success');
+                document.getElementById('modal-editar').classList.add('hidden');
+                estado.participanteEditando = null;
+                
+                // Recargar lista de participantes
+                cargarTabEdicion();
+                
+            } catch (error) {
+                console.error('Error al guardar cambios:', error);
+                mostrarToast('Error al guardar cambios', 'danger');
+            }
+        });
+        
         window.eliminarParticipante = async (id) => {
             if (confirm('Eliminar este participante?')) {
                 try {
@@ -1628,6 +1841,7 @@
                 }
             }
         };
+        
         window.generarJPGAdmin = async (id) => {
             try {
                 const docSnap = await getDoc(doc(db, 'participantes', id));
