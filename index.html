@@ -375,7 +375,7 @@
             padding: 40px;
             color: white;
             margin: 20px 0;
-            width: 1000px; /* Ancho fijo para consistencia */
+            width: 1000px;
             box-sizing: border-box;
         }
         
@@ -431,6 +431,80 @@
         
         .respuesta-vacia {
             color: rgba(255, 255, 255, 0.3);
+        }
+        
+        /* Estilos para imagen de bloque específico */
+        .bloque-especifico-container {
+            background: linear-gradient(135deg, #0a1931 0%, #152642 50%, #6a1b9a 100%);
+            border: 2px solid rgba(217, 70, 239, 0.5);
+            border-radius: 20px;
+            padding: 40px;
+            color: white;
+            margin: 20px 0;
+            width: 1100px;
+            box-sizing: border-box;
+        }
+        
+        .preguntas-oficiales {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .pregunta-oficial-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .pregunta-oficial-item:last-child {
+            border-bottom: none;
+        }
+        
+        .pregunta-texto {
+            flex: 1;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .resultado-oficial {
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            background: rgba(16, 185, 129, 0.3);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.5);
+        }
+        
+        .respuesta-celda {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        
+        .respuesta-acierto {
+            background: rgba(16, 185, 129, 0.3);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.5);
+        }
+        
+        .respuesta-fallo {
+            background: rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.5);
+        }
+        
+        .btn-disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
         }
     </style>
 </head>
@@ -821,6 +895,7 @@
     <!-- CONTENEDORES OCULTOS PARA IMÁGENES -->
     <div id="contenedor-imagen-bloques" class="hidden"></div>
     <div id="contenedor-imagen-ranking" class="hidden"></div>
+    <div id="contenedor-imagen-bloque-especifico" class="hidden"></div>
     
     <div id="toast-container"></div>
     
@@ -846,7 +921,7 @@
         const PARTIDOS = [
             {
                 numero: 1, local: "Francia", visitante: "Marruecos",
-                fecha: "2026-07-09T16:00:00", fechaTexto: "Jue 09/07, 4:00 PM",
+                fecha: "2026-07-09T16:00:00", fechaTexto: "Jueves 9 de julio de 2026, 4:00 PM",
                 preguntas: [
                     { id: "p1", texto: "Empate 0-0 en 90'?" },
                     { id: "p2", texto: "A Francia le anulan al menos un gol en el partido?" },
@@ -856,7 +931,7 @@
             },
             {
                 numero: 2, local: "España", visitante: "Belgica",
-                fecha: "2026-07-10T15:00:00", fechaTexto: "Vie 10/07, 3:00 PM",
+                fecha: "2026-07-10T15:00:00", fechaTexto: "Viernes 10 de julio de 2026, 3:00 PM",
                 preguntas: [
                     { id: "p1", texto: "Mas de 5 goles en 90'?" },
                     { id: "p2", texto: "Ambos marcan al descanso?" },
@@ -866,7 +941,7 @@
             },
             {
                 numero: 3, local: "Noruega", visitante: "Inglaterra",
-                fecha: "2026-07-11T17:00:00", fechaTexto: "Sab 11/07, 5:00 PM",
+                fecha: "2026-07-11T17:00:00", fechaTexto: "Sábado 11 de julio de 2026, 5:00 PM",
                 preguntas: [
                     { id: "p1", texto: "Haaland anota 2 o mas goles a los 90'?" },
                     { id: "p2", texto: "ING gana sin recibir goles al 90'?" },
@@ -876,7 +951,7 @@
             },
             {
                 numero: 4, local: "Argentina", visitante: "Suiza",
-                fecha: "2026-07-11T21:00:00", fechaTexto: "Sab 11/07, 9:00 PM",
+                fecha: "2026-07-11T21:00:00", fechaTexto: "Sábado 11 de julio de 2026, 9:00 PM",
                 preguntas: [
                     { id: "p1", texto: "Se define en penales?" },
                     { id: "p2", texto: "SUI gana 1-0 en 90'?" },
@@ -1643,6 +1718,7 @@
                         });
                         await recalcularPuntajes();
                         mostrarToast('Resultados guardados', 'success');
+                        cargarTabCompartir();
                     } catch (error) {
                         console.error('Error:', error);
                         mostrarToast('Error al guardar', 'danger');
@@ -1744,34 +1820,208 @@
         }
         
         // ============================================
-        // PESTAÑA COMPARTIR (NUEVA)
+        // PESTAÑA COMPARTIR (ACTUALIZADA CON 6 BOTONES)
         // ============================================
         async function cargarTabCompartir() {
             const container = document.getElementById('tab-compartir');
+            
+            // Verificar qué bloques tienen resultados oficiales cargados
+            const partidosSnapshot = await getDocs(collection(db, 'partidos'));
+            const bloquesConResultados = {};
+            partidosSnapshot.forEach(doc => {
+                const data = doc.data();
+                const resultados = data.resultadosOficiales;
+                const tieneResultados = Object.values(resultados).some(r => r !== null && r !== undefined);
+                bloquesConResultados[data.numero] = tieneResultados;
+            });
+            
             container.innerHTML = `
                 <h3 class="font-titulo text-xl titulo-gradient mb-4">IMÁGENES PARA COMPARTIR</h3>
                 <div class="space-y-4">
+                    
+                    <!-- IMÁGENES POR BLOQUE ESPECÍFICO -->
                     <div class="glass p-6">
-                        <h4 class="font-semibold text-yellow-400 mb-2">Transparencia de Jugadas</h4>
-                        <p class="text-sm text-white/70 mb-4">Genera la imagen con todas las selecciones de los participantes para los 4 bloques.</p>
+                        <h4 class="font-semibold text-yellow-400 mb-4">IMÁGENES DE BLOQUES INDIVIDUALES</h4>
+                        <p class="text-sm text-white/70 mb-4">Genera imagen con desglose pregunta por pregunta de cada bloque (disponible solo después de cargar resultados oficiales)</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            ${PARTIDOS.map((p, idx) => {
+                                const num = idx + 1;
+                                const tieneResultados = bloquesConResultados[num];
+                                const disabled = !tieneResultados ? 'btn-disabled' : '';
+                                const statusText = tieneResultados ? '✓ Disponible' : '⏳ Esperando resultados';
+                                const statusColor = tieneResultados ? 'text-green-400' : 'text-white/40';
+                                
+                                return `
+                                    <div class="glass p-4">
+                                        <p class="text-sm font-semibold mb-1">Bloque ${num}: ${p.local} vs ${p.visitante}</p>
+                                        <p class="text-xs ${statusColor} mb-3">${statusText}</p>
+                                        <button 
+                                            class="btn-success w-full py-2 rounded-lg font-semibold text-sm ${disabled}" 
+                                            onclick="generarImagenBloqueEspecifico(${num})"
+                                            ${!tieneResultados ? 'disabled' : ''}
+                                        >
+                                            📸 Generar Imagen Bloque ${num}
+                                        </button>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                    
+                    <!-- IMAGEN GENERAL -->
+                    <div class="glass p-6">
+                        <h4 class="font-semibold text-yellow-400 mb-2">Transparencia General</h4>
+                        <p class="text-sm text-white/70 mb-4">Genera imagen con todas las selecciones de los participantes para los 4 bloques.</p>
                         <button id="btn-img-bloques" class="btn-success w-full py-3 rounded-xl font-semibold">
-                            📸 Generar Imagen de Bloques
+                            📸 Generar Imagen General de Bloques
                         </button>
                     </div>
                     
+                    <!-- IMAGEN RANKING -->
                     <div class="glass p-6">
                         <h4 class="font-semibold text-yellow-400 mb-2">Tabla de Ranking</h4>
-                        <p class="text-sm text-white/70 mb-4">Genera la imagen del ranking actualizado con puntajes por bloque.</p>
+                        <p class="text-sm text-white/70 mb-4">Genera imagen del ranking actualizado con puntajes por bloque.</p>
                         <button id="btn-img-ranking" class="btn-primary w-full py-3 rounded-xl font-semibold">
                             📸 Generar Imagen de Ranking
                         </button>
                     </div>
+                    
                 </div>
             `;
             
             document.getElementById('btn-img-bloques').addEventListener('click', () => generarImagenBloques());
             document.getElementById('btn-img-ranking').addEventListener('click', () => generarImagenRanking());
         }
+        
+        // ============================================
+        // NUEVA FUNCIÓN: GENERAR IMAGEN DE BLOQUE ESPECÍFICO
+        // ============================================
+        window.generarImagenBloqueEspecifico = async (numeroBloque) => {
+            try {
+                const partido = PARTIDOS[numeroBloque - 1];
+                mostrarToast(`Generando imagen del Bloque ${numeroBloque}...`, 'info');
+                
+                // Obtener resultados oficiales del bloque
+                const partidoDoc = await getDoc(doc(db, 'partidos', `bloque_${numeroBloque}`));
+                const resultadosOficiales = partidoDoc.data().resultadosOficiales;
+                
+                // Obtener participantes
+                const participantesSnapshot = await getDocs(collection(db, 'participantes'));
+                const participantes = [];
+                participantesSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (data.estado === 'COMPLETADO') {
+                        participantes.push({ 
+                            id: doc.id, 
+                            nombre: data.nombre, 
+                            respuestas: data.respuestas 
+                        });
+                    }
+                });
+                
+                const contenedor = document.getElementById('contenedor-imagen-bloque-especifico');
+                contenedor.classList.remove('hidden');
+                
+                let html = `
+                    <div class="bloque-especifico-container">
+                        <h2 class="font-titulo text-4xl titulo-gradient mb-2 text-center">4TOS DE FINAL - MUNDIAL 2026</h2>
+                        <h3 class="font-titulo text-2xl text-center text-yellow-400 mb-2">
+                            BLOQUE ${numeroBloque}: ${partido.local} vs ${partido.visitante}
+                        </h3>
+                        <p class="text-center text-white/70 mb-6">${partido.fechaTexto}</p>
+                        
+                        <!-- PREGUNTAS Y RESULTADOS OFICIALES -->
+                        <div class="preguntas-oficiales">
+                            <h4 class="font-semibold text-lg mb-4 text-center text-fucsia-claro">PREGUNTAS Y RESULTADOS OFICIALES</h4>
+                            ${partido.preguntas.map((preg, idx) => {
+                                const resultadoOficial = resultadosOficiales[preg.id];
+                                const textoResultado = resultadoOficial === 'Si' ? 'SÍ' : 'NO';
+                                return `
+                                    <div class="pregunta-oficial-item">
+                                        <span class="pregunta-texto">P${idx + 1}: ${preg.texto}</span>
+                                        <span class="resultado-oficial">${textoResultado}</span>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                        
+                        <!-- TABLA DE PARTICIPANTES -->
+                        <table class="tabla-general">
+                            <thead>
+                                <tr>
+                                    <th style="width: 150px;">Participante</th>
+                                    <th>P1</th>
+                                    <th>P2</th>
+                                    <th>P3</th>
+                                    <th>P4</th>
+                                    <th>Pts</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                participantes.forEach(p => {
+                    const respuestasBloque = p.respuestas[`bloque_${numeroBloque}`] || {};
+                    let puntos = 0;
+                    
+                    html += `<tr><td class="font-nombre text-left">${p.nombre}</td>`;
+                    
+                    partido.preguntas.forEach(preg => {
+                        const respuestaUsuario = respuestasBloque[preg.id];
+                        const respuestaOficial = resultadosOficiales[preg.id];
+                        
+                        if (respuestaUsuario && respuestaOficial) {
+                            const esAcierto = respuestasIguales(respuestaUsuario, respuestaOficial);
+                            const textoResp = respuestaUsuario === 'Si' ? 'Sí' : 'No';
+                            
+                            if (esAcierto) {
+                                html += `<td><span class="respuesta-celda respuesta-acierto">${textoResp} ✓</span></td>`;
+                                puntos++;
+                            } else {
+                                html += `<td><span class="respuesta-celda respuesta-fallo">${textoResp} ✗</span></td>`;
+                            }
+                        } else {
+                            html += `<td><span class="respuesta-celda respuesta-fallo">—</span></td>`;
+                        }
+                    });
+                    
+                    html += `<td class="font-numero text-xl text-yellow-400">${puntos}</td></tr>`;
+                });
+                
+                html += `
+                            </tbody>
+                        </table>
+                        
+                        <p class="text-center text-sm text-white/50 mt-6">Generado el ${new Date().toLocaleString('es-VE')}</p>
+                    </div>
+                `;
+                
+                contenedor.innerHTML = html;
+                await new Promise(resolve => setTimeout(resolve, 200));
+                
+                const canvas = await html2canvas(contenedor, {
+                    scale: 3,
+                    backgroundColor: '#0a1931',
+                    useCORS: true,
+                    logging: false,
+                    allowTaint: true
+                });
+                
+                const link = document.createElement('a');
+                link.download = `4tos_bloque_${numeroBloque}_${partido.local}_vs_${partido.visitante}.png`;
+                link.href = canvas.toDataURL('image/png', 1.0);
+                link.click();
+                
+                contenedor.classList.add('hidden');
+                contenedor.innerHTML = '';
+                mostrarToast(`Imagen del Bloque ${numeroBloque} generada!`, 'success');
+                reproducirSonido('trompeta');
+                
+            } catch (error) {
+                console.error('Error al generar imagen de bloque:', error);
+                mostrarToast('Error al generar imagen', 'danger');
+            }
+        };
         
         async function generarImagenBloques() {
             try {
