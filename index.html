@@ -366,6 +366,69 @@
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
+        
+        /* Estilos para la tabla general de participantes */
+        .tabla-general-container {
+            background: linear-gradient(135deg, #0a1931 0%, #152642 50%, #6a1b9a 100%);
+            border: 2px solid rgba(217, 70, 239, 0.5);
+            border-radius: 20px;
+            padding: 40px;
+            color: white;
+            margin: 20px 0;
+        }
+        
+        .tabla-general {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .tabla-general th {
+            background: linear-gradient(135deg, #d946ef 0%, #6a1b9a 100%);
+            padding: 16px;
+            text-align: center;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 14px;
+            letter-spacing: 0.1em;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .tabla-general td {
+            padding: 14px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-weight: 600;
+        }
+        
+        .tabla-general tr:nth-child(even) {
+            background: rgba(255, 255, 255, 0.03);
+        }
+        
+        .tabla-general tr:hover {
+            background: rgba(217, 70, 239, 0.1);
+        }
+        
+        .respuesta-resumida {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            margin: 2px;
+        }
+        
+        .respuesta-si {
+            background: rgba(16, 185, 129, 0.3);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.5);
+        }
+        
+        .respuesta-no {
+            background: rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.5);
+        }
     </style>
 </head>
 <body class="relative">
@@ -749,6 +812,9 @@
             </div>
         </div>
     </div>
+    
+    <!-- CONTENEDOR OCULTO PARA GENERAR IMAGEN GENERAL -->
+    <div id="contenedor-imagen-general" class="hidden"></div>
     
     <div id="toast-container"></div>
     
@@ -1180,28 +1246,23 @@
             });
         }
         
-        // ============================================
-        // DESCARGAR IMAGEN EN PNG (ALTA CALIDAD)
-        // ============================================
         document.getElementById('btn-descargar-jpg').addEventListener('click', async () => {
             try {
                 const elementoACapturar = document.getElementById('contenedor-resumen-completo');
                 
-                // Mostrar toast de progreso
                 mostrarToast('Generando imagen en alta calidad...', 'info');
                 
                 const canvas = await html2canvas(elementoACapturar, {
-                    scale: 4,  // Aumentado de 3 a 4 para mayor resolución
+                    scale: 4,
                     backgroundColor: '#0a1931',
                     useCORS: true,
                     logging: false,
                     allowTaint: true
                 });
                 
-                // Convertir a PNG (sin pérdida de calidad)
                 const link = document.createElement('a');
                 link.download = `4tos_final_${estado.usuarioActual.nombre}.png`;
-                link.href = canvas.toDataURL('image/png', 1.0);  // PNG con máxima calidad
+                link.href = canvas.toDataURL('image/png', 1.0);
                 link.click();
                 
                 mostrarToast('Tarjeta descargada en PNG!', 'success');
@@ -1649,7 +1710,21 @@
                         participantes.push({ id: doc.id, nombre: data.nombre, respuestas: data.respuestas, puntajes: data.puntajes });
                     }
                 });
-                let html = `<h3 class="font-titulo text-xl titulo-gradient mb-4">PARTICIPANTES (${participantes.length})</h3><div class="space-y-3">`;
+                
+                let html = `<h3 class="font-titulo text-xl titulo-gradient mb-4">PARTICIPANTES (${participantes.length})</h3>`;
+                
+                // BOTÓN PARA GENERAR IMAGEN GENERAL
+                html += `
+                    <div class="glass p-4 mb-6">
+                        <h4 class="font-semibold text-yellow-400 mb-3">TABLA GENERAL DE PARTICIPANTES</h4>
+                        <p class="text-sm text-white/70 mb-4">Genera una imagen PNG de alta calidad con todos los participantes y sus respuestas</p>
+                        <button id="btn-generar-imagen-general" class="btn-success w-full py-3 rounded-xl font-semibold">
+                            📊 GENERAR IMAGEN GENERAL PNG
+                        </button>
+                    </div>
+                `;
+                
+                html += `<div class="space-y-3">`;
                 participantes.forEach(p => {
                     html += `
                         <div class="glass p-4">
@@ -1667,8 +1742,103 @@
                 });
                 html += `</div>`;
                 container.innerHTML = html;
+                
+                // Event listener para el botón de generar imagen general
+                document.getElementById('btn-generar-imagen-general').addEventListener('click', () => {
+                    generarImagenGeneral(participantes);
+                });
+                
             } catch (error) {
                 console.error('Error:', error);
+            }
+        }
+        
+        // ============================================
+        // FUNCIÓN GENERAR IMAGEN GENERAL DE TODOS LOS PARTICIPANTES
+        // ============================================
+        async function generarImagenGeneral(participantes) {
+            try {
+                mostrarToast('Generando imagen general en alta calidad...', 'info');
+                
+                const contenedor = document.getElementById('contenedor-imagen-general');
+                contenedor.classList.remove('hidden');
+                
+                // Construir la tabla general
+                let html = `
+                    <div class="tabla-general-container">
+                        <h2 class="font-titulo text-4xl titulo-gradient mb-2 text-center">4TOS DE FINAL</h2>
+                        <p class="text-center text-white/70 mb-6">Tabla General de Participantes - Mundial 2026</p>
+                        <p class="text-center text-sm text-white/50 mb-6">Generado el ${new Date().toLocaleString('es-VE')}</p>
+                        
+                        <table class="tabla-general">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>B1</th>
+                                    <th>B2</th>
+                                    <th>B3</th>
+                                    <th>B4</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                participantes.forEach(p => {
+                    html += `<tr><td class="font-nombre text-left">${p.nombre}</td>`;
+                    
+                    for (let i = 1; i <= 4; i++) {
+                        const bloqueKey = `bloque_${i}`;
+                        const respuestas = p.respuestas[bloqueKey] || {};
+                        
+                        // Crear resumen de respuestas: "Sí, No, No, No"
+                        const resumenRespuestas = PARTIDOS[i-1].preguntas.map(preg => {
+                            const resp = respuestas[preg.id];
+                            return resp === 'Si' ? 'Sí' : (resp === 'No' ? 'No' : '—');
+                        }).join(', ');
+                        
+                        html += `<td><span class="text-xs">${resumenRespuestas}</span></td>`;
+                    }
+                    
+                    html += `</tr>`;
+                });
+                
+                html += `
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                
+                contenedor.innerHTML = html;
+                
+                // Esperar un momento para que se renderice
+                await new Promise(resolve => setTimeout(resolve, 200));
+                
+                // Capturar como imagen PNG de alta calidad
+                const canvas = await html2canvas(contenedor, {
+                    scale: 4,
+                    backgroundColor: '#0a1931',
+                    useCORS: true,
+                    logging: false,
+                    allowTaint: true
+                });
+                
+                // Descargar imagen
+                const link = document.createElement('a');
+                link.download = `4tos_final_tabla_general_${new Date().getTime()}.png`;
+                link.href = canvas.toDataURL('image/png', 1.0);
+                link.click();
+                
+                // Ocultar contenedor
+                contenedor.classList.add('hidden');
+                contenedor.innerHTML = '';
+                
+                mostrarToast('Imagen general descargada en PNG!', 'success');
+                reproducirSonido('trompeta');
+                
+            } catch (error) {
+                console.error('Error al generar imagen general:', error);
+                mostrarToast('Error al generar imagen general', 'danger');
+                document.getElementById('contenedor-imagen-general').classList.add('hidden');
             }
         }
         
@@ -1690,10 +1860,8 @@
                     respuestas: data.respuestas || {}
                 };
                 
-                // Cargar nombre actual
                 document.getElementById('input-editar-nombre').value = data.nombre;
                 
-                // Cargar bloques para edición
                 const editarContainer = document.getElementById('editar-bloques-container');
                 editarContainer.innerHTML = '';
                 
@@ -1740,7 +1908,6 @@
                     editarContainer.appendChild(bloqueDiv);
                 });
                 
-                // Event listeners para los radio buttons de edición
                 editarContainer.querySelectorAll('.radio-custom').forEach(label => {
                     label.addEventListener('click', () => {
                         const bloque = label.dataset.bloque;
@@ -1753,7 +1920,6 @@
                     });
                 });
                 
-                // Mostrar modal
                 document.getElementById('modal-editar').classList.remove('hidden');
                 
             } catch (error) {
@@ -1762,13 +1928,11 @@
             }
         };
         
-        // Cancelar edición
         document.getElementById('btn-editar-cancelar').addEventListener('click', () => {
             document.getElementById('modal-editar').classList.add('hidden');
             estado.participanteEditando = null;
         });
         
-        // Guardar cambios de edición
         document.getElementById('btn-editar-guardar').addEventListener('click', async () => {
             if (!estado.participanteEditando) {
                 mostrarToast('No hay participante seleccionado', 'danger');
@@ -1782,7 +1946,6 @@
             }
             
             try {
-                // Verificar si el nombre cambió y si ya existe
                 if (nuevoNombre !== estado.participanteEditando.nombreOriginal) {
                     const participantesSnapshot = await getDocs(collection(db, 'participantes'));
                     const nombresExistentes = [];
@@ -1798,7 +1961,6 @@
                     }
                 }
                 
-                // Recopilar todas las respuestas editadas
                 const nuevasRespuestas = {};
                 const editarContainer = document.getElementById('editar-bloques-container');
                 
@@ -1815,21 +1977,18 @@
                     });
                 });
                 
-                // Actualizar en Firebase
                 const participanteRef = doc(db, 'participantes', estado.participanteEditando.id);
                 await updateDoc(participanteRef, {
                     nombre: nuevoNombre,
                     respuestas: nuevasRespuestas
                 });
                 
-                // Recalcular puntajes
                 await recalcularPuntajes();
                 
                 mostrarToast('Participante actualizado correctamente', 'success');
                 document.getElementById('modal-editar').classList.add('hidden');
                 estado.participanteEditando = null;
                 
-                // Recargar lista de participantes
                 cargarTabEdicion();
                 
             } catch (error) {
