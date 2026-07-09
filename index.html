@@ -512,7 +512,7 @@
                         id="btn-descargar-jpg" 
                         class="btn-primary w-full py-4 rounded-xl font-titulo text-lg text-white shadow-lg"
                     >
-                        DESCARGAR MI TARJETA JPG
+                        DESCARGAR MI TARJETA PNG
                     </button>
                     <button 
                         id="btn-volver-inicio" 
@@ -797,7 +797,7 @@
                 fecha: "2026-07-11T17:00:00", fechaTexto: "Sab 11/07, 5:00 PM",
                 preguntas: [
                     { id: "p1", texto: "Haaland anota 2 o mas goles a los 90'?" },
-                    { id: "p2", texto: "ING gana sin recibir goles?" },
+                    { id: "p2", texto: "ING gana sin recibir goles al 90'?" },
                     { id: "p3", texto: "Empate en 90'?" },
                     { id: "p4", texto: "2T menos goles que 1T?" }
                 ]
@@ -1180,23 +1180,31 @@
             });
         }
         
+        // ============================================
+        // DESCARGAR IMAGEN EN PNG (ALTA CALIDAD)
+        // ============================================
         document.getElementById('btn-descargar-jpg').addEventListener('click', async () => {
             try {
                 const elementoACapturar = document.getElementById('contenedor-resumen-completo');
                 
+                // Mostrar toast de progreso
+                mostrarToast('Generando imagen en alta calidad...', 'info');
+                
                 const canvas = await html2canvas(elementoACapturar, {
-                    scale: 3,
+                    scale: 4,  // Aumentado de 3 a 4 para mayor resolución
                     backgroundColor: '#0a1931',
                     useCORS: true,
-                    logging: false
+                    logging: false,
+                    allowTaint: true
                 });
                 
+                // Convertir a PNG (sin pérdida de calidad)
                 const link = document.createElement('a');
-                link.download = `4tos_final_${estado.usuarioActual.nombre}.jpg`;
-                link.href = canvas.toDataURL('image/jpeg', 0.95);
+                link.download = `4tos_final_${estado.usuarioActual.nombre}.png`;
+                link.href = canvas.toDataURL('image/png', 1.0);  // PNG con máxima calidad
                 link.click();
                 
-                mostrarToast('Tarjeta descargada!', 'success');
+                mostrarToast('Tarjeta descargada en PNG!', 'success');
                 reproducirSonido('trompeta');
             } catch (error) {
                 console.error('Error al generar imagen:', error);
@@ -1652,7 +1660,7 @@
                             <div class="flex flex-wrap gap-2">
                                 <button class="btn-secondary px-3 py-1 rounded-lg text-xs font-semibold" onclick="editarParticipante('${p.id}')">Editar</button>
                                 <button class="btn-danger px-3 py-1 rounded-lg text-xs font-semibold" onclick="eliminarParticipante('${p.id}')">Eliminar</button>
-                                <button class="btn-primary px-3 py-1 rounded-lg text-xs font-semibold" onclick="generarJPGAdmin('${p.id}')">Generar JPG</button>
+                                <button class="btn-primary px-3 py-1 rounded-lg text-xs font-semibold" onclick="generarJPGAdmin('${p.id}')">Generar PNG</button>
                             </div>
                         </div>
                     `;
@@ -1665,7 +1673,7 @@
         }
         
         // ============================================
-        // FUNCIÓN EDITAR PARTICIPANTE (COMPLETA)
+        // FUNCIÓN EDITAR PARTICIPANTE (COMPLETA Y FUNCIONAL)
         // ============================================
         window.editarParticipante = async (id) => {
             try {
@@ -1857,7 +1865,7 @@
                 }
             } catch (error) {
                 console.error('Error:', error);
-                mostrarToast('Error al generar JPG', 'danger');
+                mostrarToast('Error al generar PNG', 'danger');
             }
         };
         
