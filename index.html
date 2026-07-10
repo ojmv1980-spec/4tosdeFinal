@@ -1886,7 +1886,7 @@
                         <h4 class="font-semibold text-yellow-400 mb-2">Transparencia General</h4>
                         <p class="text-sm text-white/70 mb-4">Genera imagen con todas las selecciones de los participantes para los 4 bloques.</p>
                         <button id="btn-img-bloques" class="btn-success w-full py-3 rounded-xl font-semibold">
-                            📸 Generar Imagen General de Bloques
+                             Generar Imagen General de Bloques
                         </button>
                     </div>
                     
@@ -1905,7 +1905,9 @@
             document.getElementById('btn-img-ranking').addEventListener('click', () => generarImagenRanking());
         }
         
-        // CORREGIDO: Contenedor visible fuera de pantalla + timeout 500ms + finally
+        // ============================================
+        // FUNCIÓN 1: BLOQUE ESPECÍFICO (CORREGIDA)
+        // ============================================
         window.generarImagenBloqueEspecifico = async (numeroBloque) => {
             try {
                 const partido = PARTIDOS[numeroBloque - 1];
@@ -1919,94 +1921,96 @@
                 participantesSnapshot.forEach(doc => {
                     const data = doc.data();
                     if (data.estado === 'COMPLETADO') {
-                        participantes.push({ 
-                            id: doc.id, 
-                            nombre: data.nombre, 
-                            respuestas: data.respuestas 
-                        });
+                        participantes.push({ id: doc.id, nombre: data.nombre, respuestas: data.respuestas });
                     }
                 });
                 
-                const contenedor = prepararContenedorParaRender('contenedor-imagen-bloque-especifico');
-                
-                let html = `
-                    <div class="bloque-especifico-container">
-                        <h2 class="font-titulo text-4xl titulo-imagen-blanco mb-2 text-center">4TOS DE FINAL - MUNDIAL 2026</h2>
-                        <h3 class="font-titulo text-2xl text-center text-yellow-400 mb-2">
-                            BLOQUE ${numeroBloque}: ${partido.local} vs ${partido.visitante}
-                        </h3>
-                        <p class="text-center text-white/70 mb-6">${partido.fechaTexto}</p>
-                        
-                        <div class="preguntas-oficiales">
-                            <h4 class="font-semibold text-lg mb-4 text-center text-fucsia-claro">PREGUNTAS Y RESULTADOS OFICIALES</h4>
-                            ${partido.preguntas.map((preg, idx) => {
-                                const resultadoOficial = resultadosOficiales[preg.id];
-                                const textoResultado = resultadoOficial === 'Si' ? 'SÍ' : 'NO';
-                                return `
-                                    <div class="pregunta-oficial-item">
-                                        <span class="pregunta-texto">P${idx + 1}: ${preg.texto}</span>
-                                        <span class="resultado-oficial">${textoResultado}</span>
-                                    </div>
-                                `;
-                            }).join('')}
-                        </div>
-                        
-                        <table class="tabla-general">
-                            <thead>
-                                <tr>
-                                    <th style="width: 120px;">Participante</th>
-                                    <th>P1</th>
-                                    <th>P2</th>
-                                    <th>P3</th>
-                                    <th>P4</th>
-                                    <th>Pts</th>
-                                </tr>
-                            </thead>
-                            <tbody>
+                // Crear contenedor temporal FUERA del DOM pero visible para html2canvas
+                const contenedorTemporal = document.createElement('div');
+                contenedorTemporal.style.cssText = `
+                    position: fixed !important;
+                    left: -10000px !important;
+                    top: 0 !important;
+                    visibility: visible !important;
+                    display: block !important;
+                    opacity: 1 !important;
+                    z-index: -9999 !important;
+                    width: 950px !important;
                 `;
+                
+                let html = `<div style="background: linear-gradient(135deg, #0a1931 0%, #152642 50%, #6a1b9a 100%); border: 2px solid rgba(217, 70, 239, 0.5); border-radius: 20px; padding: 30px; color: white; width: 100%; font-family: 'Montserrat', sans-serif; box-sizing: border-box;">`;
+                
+                // TÍTULO PRINCIPAL
+                html += `<h2 style="font-family: 'Orbitron', sans-serif; font-weight: 900; color: white; text-align: center; margin-bottom: 10px; font-size: 36px; letter-spacing: 2px;">4TOS DE FINAL - MUNDIAL 2026</h2>`;
+                
+                // SUBTÍTULO DEL BLOQUE
+                html += `<h3 style="font-family: 'Orbitron', sans-serif; font-weight: 900; color: #fbbf24; text-align: center; margin-bottom: 5px; font-size: 22px;">BLOQUE ${numeroBloque}: ${partido.local} vs ${partido.visitante}</h3>`;
+                
+                // FECHA
+                html += `<p style="text-align: center; color: rgba(255,255,255,0.7); margin-bottom: 25px; font-size: 15px; font-weight: 600;">${partido.fechaTexto}</p>`;
+                
+                // SECCIÓN DE PREGUNTAS Y RESULTADOS
+                html += `<div style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 20px; margin: 20px 0;">`;
+                html += `<h4 style="font-weight: 700; margin-bottom: 15px; text-align: center; color: #e879f9; font-size: 17px; text-transform: uppercase; letter-spacing: 1px;">PREGUNTAS Y RESULTADOS OFICIALES</h4>`;
+                
+                partido.preguntas.forEach((preg, idx) => {
+                    const resultadoOficial = resultadosOficiales[preg.id];
+                    const textoResultado = resultadoOficial === 'Si' ? 'SÍ' : 'NO';
+                    html += `<div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">`;
+                    html += `<span style="flex: 1; font-size: 15px; font-weight: 600;">P${idx + 1}: ${preg.texto}</span>`;
+                    html += `<span style="padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; background: rgba(16, 185, 129, 0.3); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.5);">${textoResultado}</span>`;
+                    html += `</div>`;
+                });
+                html += `</div>`;
+                
+                // TABLA DE PARTICIPANTES
+                html += `<table style="width: 100%; border-collapse: collapse; margin-top: 20px;">`;
+                html += `<thead><tr style="background: linear-gradient(135deg, #d946ef 0%, #6a1b9a 100%);">`;
+                html += `<th style="padding: 14px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 15px; letter-spacing: 0.1em; border: 1px solid rgba(255,255,255,0.2); width: 160px;">Participante</th>`;
+                html += `<th style="padding: 14px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 15px; letter-spacing: 0.1em; border: 1px solid rgba(255,255,255,0.2);">P1</th>`;
+                html += `<th style="padding: 14px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 15px; letter-spacing: 0.1em; border: 1px solid rgba(255,255,255,0.2);">P2</th>`;
+                html += `<th style="padding: 14px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 15px; letter-spacing: 0.1em; border: 1px solid rgba(255,255,255,0.2);">P3</th>`;
+                html += `<th style="padding: 14px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 15px; letter-spacing: 0.1em; border: 1px solid rgba(255,255,255,0.2);">P4</th>`;
+                html += `<th style="padding: 14px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 15px; letter-spacing: 0.1em; border: 1px solid rgba(255,255,255,0.2); width: 70px;">Pts</th>`;
+                html += `</tr></thead><tbody>`;
                 
                 participantes.forEach(p => {
                     const respuestasBloque = p.respuestas[`bloque_${numeroBloque}`] || {};
                     let puntos = 0;
-                    
-                    html += `<tr><td class="font-nombre text-left">${p.nombre}</td>`;
+                    html += `<tr><td style="padding: 12px; text-align: left; border: 1px solid rgba(255,255,255,0.1); font-weight: 700; font-size: 14px;">${p.nombre}</td>`;
                     
                     partido.preguntas.forEach(preg => {
                         const respuestaUsuario = respuestasBloque[preg.id];
                         const respuestaOficial = resultadosOficiales[preg.id];
-                        
                         if (respuestaUsuario && respuestaOficial) {
                             const esAcierto = respuestasIguales(respuestaUsuario, respuestaOficial);
                             const textoResp = respuestaUsuario === 'Si' ? 'Sí' : 'No';
-                            
-                            if (esAcierto) {
-                                html += `<td><span class="respuesta-texto-solo respuesta-acierto-texto">${textoResp} ✓</span></td>`;
-                                puntos++;
-                            } else {
-                                html += `<td><span class="respuesta-texto-solo respuesta-fallo-texto">${textoResp} ✗</span></td>`;
-                            }
+                            const color = esAcierto ? '#10b981' : '#ef4444';
+                            const simbolo = esAcierto ? '✓' : '✗';
+                            html += `<td style="padding: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1);"><span style="color: ${color}; font-size: 16px; font-weight: 800;">${textoResp} ${simbolo}</span></td>`;
+                            if (esAcierto) puntos++;
                         } else {
-                            html += `<td><span class="respuesta-texto-solo respuesta-fallo-texto">—</span></td>`;
+                            html += `<td style="padding: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1);"><span style="color: rgba(255,255,255,0.3); font-size: 16px; font-weight: 800;">—</span></td>`;
                         }
                     });
                     
-                    html += `<td class="font-numero text-xl text-yellow-400">${puntos}</td></tr>`;
+                    html += `<td style="padding: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1); font-size: 19px; font-weight: 800; color: #fbbf24;">${puntos}</td></tr>`;
                 });
                 
-                html += `
-                            </tbody>
-                        </table>
-                        
-                        <p class="text-center text-sm text-white/50 mt-6">Generado el ${new Date().toLocaleString('es-VE')}</p>
-                    </div>
-                `;
+                html += `</tbody></table>`;
+                html += `<p style="text-align: center; color: rgba(255,255,255,0.5); margin-top: 25px; font-size: 12px;">Generado el ${new Date().toLocaleString('es-VE')}</p>`;
+                html += `</div>`;
                 
-                contenedor.innerHTML = html;
+                contenedorTemporal.innerHTML = html;
+                document.body.appendChild(contenedorTemporal);
                 
-                // Esperar a que se renderice completamente (500ms)
-                await new Promise(resolve => setTimeout(resolve, 500));
+                // Esperar más tiempo para renderizado completo
+                await new Promise(resolve => setTimeout(resolve, 1500));
                 
-                const canvas = await html2canvas(contenedor, {
+                // Calcular altura real del contenido
+                const alturaReal = contenedorTemporal.scrollHeight;
+                
+                const canvas = await html2canvas(contenedorTemporal, {
                     scale: 3,
                     backgroundColor: '#0a1931',
                     useCORS: true,
@@ -2014,8 +2018,8 @@
                     allowTaint: true,
                     scrollX: 0,
                     scrollY: 0,
-                    windowWidth: contenedor.scrollWidth,
-                    windowHeight: contenedor.scrollHeight
+                    windowWidth: 950,
+                    windowHeight: alturaReal + 50
                 });
                 
                 const link = document.createElement('a');
@@ -2023,19 +2027,19 @@
                 link.href = canvas.toDataURL('image/png', 1.0);
                 link.click();
                 
+                document.body.removeChild(contenedorTemporal);
                 mostrarToast(`Imagen del Bloque ${numeroBloque} generada!`, 'success');
                 reproducirSonido('trompeta');
                 
             } catch (error) {
                 console.error('Error al generar imagen de bloque:', error);
                 mostrarToast('Error al generar imagen', 'danger');
-            } finally {
-                // Garantizar limpieza siempre
-                ocultarContenedor('contenedor-imagen-bloque-especifico');
             }
         };
         
-        // CORREGIDO: Misma solución aplicada
+        // ============================================
+        // FUNCIÓN 2: TRANSPARENCIA GENERAL (CORREGIDA)
+        // ============================================
         async function generarImagenBloques() {
             try {
                 mostrarToast('Generando imagen de bloques...', 'info');
@@ -2049,57 +2053,60 @@
                     }
                 });
                 
-                const contenedor = prepararContenedorParaRender('contenedor-imagen-bloques');
-                
-                let html = `
-                    <div class="tabla-general-container">
-                        <h2 class="font-titulo text-4xl titulo-imagen-blanco mb-2 text-center">4TOS DE FINAL</h2>
-                        <p class="text-center text-white/70 mb-6">Transparencia General de Jugadas - Mundial 2026</p>
-                        <p class="text-center text-sm text-white/50 mb-6">Generado el ${new Date().toLocaleString('es-VE')}</p>
-                        
-                        <table class="tabla-general">
-                            <thead>
-                                <tr>
-                                    <th style="width: 120px;">Nombre</th>
-                                    <th>BLOQUE 1 (FRA vs MAR)</th>
-                                    <th>BLOQUE 2 (ESP vs BEL)</th>
-                                    <th>BLOQUE 3 (NOR vs ING)</th>
-                                    <th>BLOQUE 4 (ARG vs SUI)</th>
-                                </tr>
-                            </thead>
-                            <tbody>
+                const contenedorTemporal = document.createElement('div');
+                contenedorTemporal.style.cssText = `
+                    position: fixed !important;
+                    left: -10000px !important;
+                    top: 0 !important;
+                    visibility: visible !important;
+                    display: block !important;
+                    opacity: 1 !important;
+                    z-index: -9999 !important;
+                    width: 1050px !important;
                 `;
                 
+                let html = `<div style="background: linear-gradient(135deg, #0a1931 0%, #152642 50%, #6a1b9a 100%); border: 2px solid rgba(217, 70, 239, 0.5); border-radius: 20px; padding: 30px; color: white; width: 100%; font-family: 'Montserrat', sans-serif; box-sizing: border-box;">`;
+                
+                html += `<h2 style="font-family: 'Orbitron', sans-serif; font-weight: 900; color: white; text-align: center; margin-bottom: 10px; font-size: 36px; letter-spacing: 2px;">4TOS DE FINAL</h2>`;
+                html += `<p style="text-align: center; color: rgba(255,255,255,0.7); margin-bottom: 5px; font-size: 17px; font-weight: 600;">Transparencia General de Jugadas - Mundial 2026</p>`;
+                html += `<p style="text-align: center; color: rgba(255,255,255,0.5); margin-bottom: 25px; font-size: 13px;">Generado el ${new Date().toLocaleString('es-VE')}</p>`;
+                
+                html += `<table style="width: 100%; border-collapse: collapse; margin-top: 20px;">`;
+                html += `<thead><tr style="background: linear-gradient(135deg, #d946ef 0%, #6a1b9a 100%);">`;
+                html += `<th style="padding: 14px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 15px; letter-spacing: 0.1em; border: 1px solid rgba(255,255,255,0.2); width: 130px;">Nombre</th>`;
+                html += `<th style="padding: 14px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 14px; letter-spacing: 0.05em; border: 1px solid rgba(255,255,255,0.2);">BLOQUE 1 (FRA vs MAR)</th>`;
+                html += `<th style="padding: 14px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 14px; letter-spacing: 0.05em; border: 1px solid rgba(255,255,255,0.2);">BLOQUE 2 (ESP vs BEL)</th>`;
+                html += `<th style="padding: 14px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 14px; letter-spacing: 0.05em; border: 1px solid rgba(255,255,255,0.2);">BLOQUE 3 (NOR vs ING)</th>`;
+                html += `<th style="padding: 14px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 14px; letter-spacing: 0.05em; border: 1px solid rgba(255,255,255,0.2);">BLOQUE 4 (ARG vs SUI)</th>`;
+                html += `</tr></thead><tbody>`;
+                
                 participantes.forEach(p => {
-                    html += `<tr><td class="font-nombre text-left" style="vertical-align: top;">${p.nombre}</td>`;
+                    html += `<tr><td style="padding: 12px; text-align: left; border: 1px solid rgba(255,255,255,0.1); font-weight: 700; font-size: 14px; vertical-align: top;">${p.nombre}</td>`;
                     
                     for (let i = 1; i <= 4; i++) {
                         const bloqueKey = `bloque_${i}`;
                         const respuestas = p.respuestas[bloqueKey] || {};
-                        
-                        html += `<td>`;
+                        html += `<td style="padding: 10px; border: 1px solid rgba(255,255,255,0.1); vertical-align: top;">`;
                         PARTIDOS[i-1].preguntas.forEach((preg, idx) => {
                             const resp = respuestas[preg.id];
-                            const clase = resp === 'Si' ? 'respuesta-si' : (resp === 'No' ? 'respuesta-no' : 'respuesta-vacia');
+                            const color = resp === 'Si' ? '#10b981' : (resp === 'No' ? '#ef4444' : 'rgba(255,255,255,0.3)');
                             const texto = resp === 'Si' ? 'SÍ' : (resp === 'No' ? 'NO' : '—');
-                            html += `<span class="respuesta-item ${clase}">P${idx + 1}: ${texto}</span>`;
+                            html += `<div style="display: block; padding: 4px 0; font-size: 13px; font-weight: 700; color: ${color}; text-align: left; padding-left: 5px;">P${idx + 1}: ${texto}</div>`;
                         });
                         html += `</td>`;
                     }
-                    
                     html += `</tr>`;
                 });
                 
-                html += `
-                            </tbody>
-                        </table>
-                    </div>
-                `;
+                html += `</tbody></table></div>`;
                 
-                contenedor.innerHTML = html;
-                await new Promise(resolve => setTimeout(resolve, 500));
+                contenedorTemporal.innerHTML = html;
+                document.body.appendChild(contenedorTemporal);
+                await new Promise(resolve => setTimeout(resolve, 1500));
                 
-                const canvas = await html2canvas(contenedor, {
+                const alturaReal = contenedorTemporal.scrollHeight;
+                
+                const canvas = await html2canvas(contenedorTemporal, {
                     scale: 3,
                     backgroundColor: '#0a1931',
                     useCORS: true,
@@ -2107,8 +2114,8 @@
                     allowTaint: true,
                     scrollX: 0,
                     scrollY: 0,
-                    windowWidth: contenedor.scrollWidth,
-                    windowHeight: contenedor.scrollHeight
+                    windowWidth: 1050,
+                    windowHeight: alturaReal + 50
                 });
                 
                 const link = document.createElement('a');
@@ -2116,18 +2123,19 @@
                 link.href = canvas.toDataURL('image/png', 1.0);
                 link.click();
                 
+                document.body.removeChild(contenedorTemporal);
                 mostrarToast('Imagen de bloques generada!', 'success');
                 reproducirSonido('trompeta');
                 
             } catch (error) {
                 console.error('Error al generar imagen de bloques:', error);
                 mostrarToast('Error al generar imagen', 'danger');
-            } finally {
-                ocultarContenedor('contenedor-imagen-bloques');
             }
         }
         
-        // CORREGIDO: Misma solución aplicada
+        // ============================================
+        // FUNCIÓN 3: RANKING (CORREGIDA)
+        // ============================================
         async function generarImagenRanking() {
             try {
                 mostrarToast('Generando imagen de ranking...', 'info');
@@ -2137,74 +2145,72 @@
                 participantesSnapshot.forEach(doc => {
                     const data = doc.data();
                     if (data.estado === 'COMPLETADO') {
-                        participantes.push({ 
-                            id: doc.id, 
-                            nombre: data.nombre, 
-                            puntajes: data.puntajes 
-                        });
+                        participantes.push({ id: doc.id, nombre: data.nombre, puntajes: data.puntajes });
                     }
                 });
                 
                 participantes.sort((a, b) => b.puntajes?.total - a.puntajes?.total);
                 
-                const contenedor = prepararContenedorParaRender('contenedor-imagen-ranking');
-                
-                let html = `
-                    <div class="tabla-general-container">
-                        <h2 class="font-titulo text-4xl titulo-imagen-blanco mb-2 text-center">4TOS DE FINAL</h2>
-                        <p class="text-center text-white/70 mb-6">Tabla de Posiciones y Puntajes - Mundial 2026</p>
-                        <p class="text-center text-sm text-white/50 mb-6">Generado el ${new Date().toLocaleString('es-VE')}</p>
-                        
-                        <table class="tabla-general">
-                            <thead>
-                                <tr>
-                                    <th>Pos</th>
-                                    <th>Nombre</th>
-                                    <th>B1</th>
-                                    <th>Pts</th>
-                                    <th>B2</th>
-                                    <th>Pts</th>
-                                    <th>B3</th>
-                                    <th>Pts</th>
-                                    <th>B4</th>
-                                    <th>Pts</th>
-                                    <th>TOTAL</th>
-                                </tr>
-                            </thead>
-                            <tbody>
+                const contenedorTemporal = document.createElement('div');
+                contenedorTemporal.style.cssText = `
+                    position: fixed !important;
+                    left: -10000px !important;
+                    top: 0 !important;
+                    visibility: visible !important;
+                    display: block !important;
+                    opacity: 1 !important;
+                    z-index: -9999 !important;
+                    width: 1150px !important;
                 `;
+                
+                let html = `<div style="background: linear-gradient(135deg, #0a1931 0%, #152642 50%, #6a1b9a 100%); border: 2px solid rgba(217, 70, 239, 0.5); border-radius: 20px; padding: 30px; color: white; width: 100%; font-family: 'Montserrat', sans-serif; box-sizing: border-box;">`;
+                
+                html += `<h2 style="font-family: 'Orbitron', sans-serif; font-weight: 900; color: white; text-align: center; margin-bottom: 10px; font-size: 36px; letter-spacing: 2px;">4TOS DE FINAL</h2>`;
+                html += `<p style="text-align: center; color: rgba(255,255,255,0.7); margin-bottom: 5px; font-size: 17px; font-weight: 600;">Tabla de Posiciones y Puntajes - Mundial 2026</p>`;
+                html += `<p style="text-align: center; color: rgba(255,255,255,0.5); margin-bottom: 25px; font-size: 13px;">Generado el ${new Date().toLocaleString('es-VE')}</p>`;
+                
+                html += `<table style="width: 100%; border-collapse: collapse; margin-top: 20px;">`;
+                html += `<thead><tr style="background: linear-gradient(135deg, #d946ef 0%, #6a1b9a 100%);">`;
+                html += `<th style="padding: 14px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 15px; letter-spacing: 0.1em; border: 1px solid rgba(255,255,255,0.2); width: 60px;">Pos</th>`;
+                html += `<th style="padding: 14px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 15px; letter-spacing: 0.1em; border: 1px solid rgba(255,255,255,0.2);">Nombre</th>`;
+                html += `<th style="padding: 10px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 14px; letter-spacing: 0.05em; border: 1px solid rgba(255,255,255,0.2); width: 65px;">B1</th>`;
+                html += `<th style="padding: 10px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 14px; letter-spacing: 0.05em; border: 1px solid rgba(255,255,255,0.2); width: 65px;">Pts</th>`;
+                html += `<th style="padding: 10px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 14px; letter-spacing: 0.05em; border: 1px solid rgba(255,255,255,0.2); width: 65px;">B2</th>`;
+                html += `<th style="padding: 10px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 14px; letter-spacing: 0.05em; border: 1px solid rgba(255,255,255,0.2); width: 65px;">Pts</th>`;
+                html += `<th style="padding: 10px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 14px; letter-spacing: 0.05em; border: 1px solid rgba(255,255,255,0.2); width: 65px;">B3</th>`;
+                html += `<th style="padding: 10px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 14px; letter-spacing: 0.05em; border: 1px solid rgba(255,255,255,0.2); width: 65px;">Pts</th>`;
+                html += `<th style="padding: 10px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 14px; letter-spacing: 0.05em; border: 1px solid rgba(255,255,255,0.2); width: 65px;">B4</th>`;
+                html += `<th style="padding: 10px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 14px; letter-spacing: 0.05em; border: 1px solid rgba(255,255,255,0.2); width: 65px;">Pts</th>`;
+                html += `<th style="padding: 14px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 15px; letter-spacing: 0.1em; border: 1px solid rgba(255,255,255,0.2); width: 90px;">TOTAL</th>`;
+                html += `</tr></thead><tbody>`;
                 
                 participantes.forEach((p, index) => {
                     const pos = index + 1;
                     const pts = p.puntajes || {};
-                    
-                    html += `
-                        <tr>
-                            <td class="font-numero text-xl">${pos}</td>
-                            <td class="font-nombre text-left">${p.nombre}</td>
-                            <td>${pts.bloque_1 || 0}</td>
-                            <td class="font-numero">${pts.bloque_1 || 0}</td>
-                            <td>${pts.bloque_2 || 0}</td>
-                            <td class="font-numero">${pts.bloque_2 || 0}</td>
-                            <td>${pts.bloque_3 || 0}</td>
-                            <td class="font-numero">${pts.bloque_3 || 0}</td>
-                            <td>${pts.bloque_4 || 0}</td>
-                            <td class="font-numero">${pts.bloque_4 || 0}</td>
-                            <td class="font-numero text-xl text-yellow-400 font-bold">${pts.total || 0}</td>
-                        </tr>
-                    `;
+                    html += `<tr>`;
+                    html += `<td style="padding: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1); font-size: 17px; font-weight: 800;">${pos}</td>`;
+                    html += `<td style="padding: 12px; text-align: left; border: 1px solid rgba(255,255,255,0.1); font-weight: 700; font-size: 14px;">${p.nombre}</td>`;
+                    html += `<td style="padding: 10px; text-align: center; border: 1px solid rgba(255,255,255,0.1); font-size: 14px;">${pts.bloque_1 || 0}</td>`;
+                    html += `<td style="padding: 10px; text-align: center; border: 1px solid rgba(255,255,255,0.1); font-weight: 800; font-size: 14px;">${pts.bloque_1 || 0}</td>`;
+                    html += `<td style="padding: 10px; text-align: center; border: 1px solid rgba(255,255,255,0.1); font-size: 14px;">${pts.bloque_2 || 0}</td>`;
+                    html += `<td style="padding: 10px; text-align: center; border: 1px solid rgba(255,255,255,0.1); font-weight: 800; font-size: 14px;">${pts.bloque_2 || 0}</td>`;
+                    html += `<td style="padding: 10px; text-align: center; border: 1px solid rgba(255,255,255,0.1); font-size: 14px;">${pts.bloque_3 || 0}</td>`;
+                    html += `<td style="padding: 10px; text-align: center; border: 1px solid rgba(255,255,255,0.1); font-weight: 800; font-size: 14px;">${pts.bloque_3 || 0}</td>`;
+                    html += `<td style="padding: 10px; text-align: center; border: 1px solid rgba(255,255,255,0.1); font-size: 14px;">${pts.bloque_4 || 0}</td>`;
+                    html += `<td style="padding: 10px; text-align: center; border: 1px solid rgba(255,255,255,0.1); font-weight: 800; font-size: 14px;">${pts.bloque_4 || 0}</td>`;
+                    html += `<td style="padding: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1); font-size: 19px; font-weight: 800; color: #fbbf24;">${pts.total || 0}</td>`;
+                    html += `</tr>`;
                 });
                 
-                html += `
-                            </tbody>
-                        </table>
-                    </div>
-                `;
+                html += `</tbody></table></div>`;
                 
-                contenedor.innerHTML = html;
-                await new Promise(resolve => setTimeout(resolve, 500));
+                contenedorTemporal.innerHTML = html;
+                document.body.appendChild(contenedorTemporal);
+                await new Promise(resolve => setTimeout(resolve, 1500));
                 
-                const canvas = await html2canvas(contenedor, {
+                const alturaReal = contenedorTemporal.scrollHeight;
+                
+                const canvas = await html2canvas(contenedorTemporal, {
                     scale: 3,
                     backgroundColor: '#0a1931',
                     useCORS: true,
@@ -2212,8 +2218,8 @@
                     allowTaint: true,
                     scrollX: 0,
                     scrollY: 0,
-                    windowWidth: contenedor.scrollWidth,
-                    windowHeight: contenedor.scrollHeight
+                    windowWidth: 1150,
+                    windowHeight: alturaReal + 50
                 });
                 
                 const link = document.createElement('a');
@@ -2221,14 +2227,13 @@
                 link.href = canvas.toDataURL('image/png', 1.0);
                 link.click();
                 
+                document.body.removeChild(contenedorTemporal);
                 mostrarToast('Imagen de ranking generada!', 'success');
                 reproducirSonido('trompeta');
                 
             } catch (error) {
                 console.error('Error al generar imagen de ranking:', error);
                 mostrarToast('Error al generar imagen', 'danger');
-            } finally {
-                ocultarContenedor('contenedor-imagen-ranking');
             }
         }
         
