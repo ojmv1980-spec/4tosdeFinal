@@ -368,17 +368,17 @@
         }
         
         /* Estilos para las tablas generales de imágenes */
-.tabla-general-container {
-    background: linear-gradient(135deg, #0a1931 0%, #152642 50%, #6a1b9a 100%);
-    border: 2px solid rgba(217, 70, 239, 0.5);
-    border-radius: 20px;
-    padding: 20px;
-    color: white;
-    margin: 0;
-    display: inline-block;
-    width: auto;
-    box-sizing: border-box;
-}
+        .tabla-general-container {
+            background: linear-gradient(135deg, #0a1931 0%, #152642 50%, #6a1b9a 100%);
+            border: 2px solid rgba(217, 70, 239, 0.5);
+            border-radius: 20px;
+            padding: 20px;
+            color: white;
+            margin: 0;
+            display: inline-block;
+            width: auto;
+            box-sizing: border-box;
+        }
         
         .tabla-general {
             width: 100%;
@@ -422,30 +422,22 @@
             line-height: 1.5;
         }
         
-        .respuesta-si {
-            color: #10b981;
-        }
-        
-        .respuesta-no {
-            color: #ef4444;
-        }
-        
-        .respuesta-vacia {
-            color: rgba(255, 255, 255, 0.3);
-        }
+        .respuesta-si { color: #10b981; }
+        .respuesta-no { color: #ef4444; }
+        .respuesta-vacia { color: rgba(255, 255, 255, 0.3); }
         
         /* Estilos para imagen de bloque específico */
-.bloque-especifico-container {
-    background: linear-gradient(135deg, #0a1931 0%, #152642 50%, #6a1b9a 100%);
-    border: 2px solid rgba(217, 70, 239, 0.5);
-    border-radius: 20px;
-    padding: 20px;
-    color: white;
-    margin: 0;
-    display: inline-block;
-    width: auto;
-    box-sizing: border-box;
-}
+        .bloque-especifico-container {
+            background: linear-gradient(135deg, #0a1931 0%, #152642 50%, #6a1b9a 100%);
+            border: 2px solid rgba(217, 70, 239, 0.5);
+            border-radius: 20px;
+            padding: 20px;
+            color: white;
+            margin: 0;
+            display: inline-block;
+            width: auto;
+            box-sizing: border-box;
+        }
         
         .preguntas-oficiales {
             background: rgba(255, 255, 255, 0.05);
@@ -463,9 +455,7 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
         
-        .pregunta-oficial-item:last-child {
-            border-bottom: none;
-        }
+        .pregunta-oficial-item:last-child { border-bottom: none; }
         
         .pregunta-texto {
             flex: 1;
@@ -483,7 +473,7 @@
             border: 1px solid rgba(16, 185, 129, 0.5);
         }
         
-        /* NUEVO: Respuestas sin chips, solo texto */
+        /* Respuestas sin chips, solo texto */
         .respuesta-texto-solo {
             display: inline-block;
             font-size: 16px;
@@ -492,15 +482,10 @@
             padding: 0;
         }
         
-        .respuesta-acierto-texto {
-            color: #10b981;
-        }
+        .respuesta-acierto-texto { color: #10b981; }
+        .respuesta-fallo-texto { color: #ef4444; }
         
-        .respuesta-fallo-texto {
-            color: #ef4444;
-        }
-        
-        /* NUEVO: Títulos blancos para imágenes */
+        /* Títulos blancos para imágenes */
         .titulo-imagen-blanco {
             color: white;
             background: none;
@@ -511,6 +496,16 @@
             opacity: 0.5;
             cursor: not-allowed;
             pointer-events: none;
+        }
+        
+        /* NUEVO: Contenedor de renderizado fuera de pantalla para html2canvas */
+        .render-offscreen {
+            position: absolute !important;
+            left: -9999px !important;
+            top: 0 !important;
+            visibility: visible !important;
+            display: block !important;
+            opacity: 1 !important;
         }
     </style>
 </head>
@@ -975,6 +970,23 @@
             participanteEditando: null
         };
         
+        // ============================================
+        // FUNCIÓN AUXILIAR: Mostrar contenedor fuera de pantalla
+        // ============================================
+        function prepararContenedorParaRender(idContenedor) {
+            const contenedor = document.getElementById(idContenedor);
+            contenedor.classList.remove('hidden');
+            contenedor.classList.add('render-offscreen');
+            return contenedor;
+        }
+        
+        function ocultarContenedor(idContenedor) {
+            const contenedor = document.getElementById(idContenedor);
+            contenedor.classList.add('hidden');
+            contenedor.classList.remove('render-offscreen');
+            contenedor.innerHTML = '';
+        }
+        
         function respuestasIguales(a, b) {
             if ((a === null || a === undefined) && (b === null || b === undefined)) return true;
             if (a === null || a === undefined || b === null || b === undefined) return false;
@@ -1304,13 +1316,16 @@
             }
         }
         
-        function mostrarResumen() {
+        // CORREGIDO: Ahora acepta respuestas como parámetro (para admin)
+        function mostrarResumen(respuestasPersonalizadas = null) {
             document.getElementById('resumen-nombre').textContent = estado.usuarioActual.nombre;
             const resumenContainer = document.getElementById('resumen-selecciones');
             resumenContainer.innerHTML = '';
             PARTIDOS.forEach((partido, index) => {
                 const bloqueNum = index + 1;
-                const respuestas = estado.respuestasTemporales[`bloque_${bloqueNum}`] || {};
+                const respuestas = respuestasPersonalizadas 
+                    ? (respuestasPersonalizadas[`bloque_${bloqueNum}`] || {})
+                    : (estado.respuestasTemporales[`bloque_${bloqueNum}`] || {});
                 const bloqueDiv = document.createElement('div');
                 bloqueDiv.className = 'glass p-4';
                 bloqueDiv.innerHTML = `
@@ -1740,6 +1755,7 @@
             }
         }
         
+        // CORREGIDO: Usa for...of en vez de forEach con async
         async function recalcularPuntajes() {
             try {
                 const participantesSnapshot = await getDocs(collection(db, 'participantes'));
@@ -1749,9 +1765,11 @@
                     const data = doc.data();
                     resultadosOficiales[`bloque_${data.numero}`] = data.resultadosOficiales;
                 });
-                participantesSnapshot.forEach(async (docSnap) => {
+                
+                for (const docSnap of participantesSnapshot.docs) {
                     const data = docSnap.data();
-                    if (data.estado !== 'COMPLETADO') return;
+                    if (data.estado !== 'COMPLETADO') continue;
+                    
                     const puntajes = {};
                     let total = 0;
                     for (let i = 1; i <= 4; i++) {
@@ -1767,7 +1785,7 @@
                     }
                     puntajes.total = total;
                     await updateDoc(doc(db, 'participantes', docSnap.id), { puntajes: puntajes });
-                });
+                }
             } catch (error) {
                 console.error('Error recalculando:', error);
             }
@@ -1887,6 +1905,7 @@
             document.getElementById('btn-img-ranking').addEventListener('click', () => generarImagenRanking());
         }
         
+        // CORREGIDO: Contenedor visible fuera de pantalla + timeout 500ms + finally
         window.generarImagenBloqueEspecifico = async (numeroBloque) => {
             try {
                 const partido = PARTIDOS[numeroBloque - 1];
@@ -1908,8 +1927,7 @@
                     }
                 });
                 
-                const contenedor = document.getElementById('contenedor-imagen-bloque-especifico');
-                contenedor.classList.remove('hidden');
+                const contenedor = prepararContenedorParaRender('contenedor-imagen-bloque-especifico');
                 
                 let html = `
                     <div class="bloque-especifico-container">
@@ -1984,14 +2002,20 @@
                 `;
                 
                 contenedor.innerHTML = html;
-                await new Promise(resolve => setTimeout(resolve, 200));
+                
+                // Esperar a que se renderice completamente (500ms)
+                await new Promise(resolve => setTimeout(resolve, 500));
                 
                 const canvas = await html2canvas(contenedor, {
                     scale: 3,
                     backgroundColor: '#0a1931',
                     useCORS: true,
                     logging: false,
-                    allowTaint: true
+                    allowTaint: true,
+                    scrollX: 0,
+                    scrollY: 0,
+                    windowWidth: contenedor.scrollWidth,
+                    windowHeight: contenedor.scrollHeight
                 });
                 
                 const link = document.createElement('a');
@@ -1999,17 +2023,19 @@
                 link.href = canvas.toDataURL('image/png', 1.0);
                 link.click();
                 
-                contenedor.classList.add('hidden');
-                contenedor.innerHTML = '';
                 mostrarToast(`Imagen del Bloque ${numeroBloque} generada!`, 'success');
                 reproducirSonido('trompeta');
                 
             } catch (error) {
                 console.error('Error al generar imagen de bloque:', error);
                 mostrarToast('Error al generar imagen', 'danger');
+            } finally {
+                // Garantizar limpieza siempre
+                ocultarContenedor('contenedor-imagen-bloque-especifico');
             }
         };
         
+        // CORREGIDO: Misma solución aplicada
         async function generarImagenBloques() {
             try {
                 mostrarToast('Generando imagen de bloques...', 'info');
@@ -2023,8 +2049,7 @@
                     }
                 });
                 
-                const contenedor = document.getElementById('contenedor-imagen-bloques');
-                contenedor.classList.remove('hidden');
+                const contenedor = prepararContenedorParaRender('contenedor-imagen-bloques');
                 
                 let html = `
                     <div class="tabla-general-container">
@@ -2072,14 +2097,18 @@
                 `;
                 
                 contenedor.innerHTML = html;
-                await new Promise(resolve => setTimeout(resolve, 200));
+                await new Promise(resolve => setTimeout(resolve, 500));
                 
                 const canvas = await html2canvas(contenedor, {
                     scale: 3,
                     backgroundColor: '#0a1931',
                     useCORS: true,
                     logging: false,
-                    allowTaint: true
+                    allowTaint: true,
+                    scrollX: 0,
+                    scrollY: 0,
+                    windowWidth: contenedor.scrollWidth,
+                    windowHeight: contenedor.scrollHeight
                 });
                 
                 const link = document.createElement('a');
@@ -2087,17 +2116,18 @@
                 link.href = canvas.toDataURL('image/png', 1.0);
                 link.click();
                 
-                contenedor.classList.add('hidden');
-                contenedor.innerHTML = '';
                 mostrarToast('Imagen de bloques generada!', 'success');
                 reproducirSonido('trompeta');
                 
             } catch (error) {
                 console.error('Error al generar imagen de bloques:', error);
                 mostrarToast('Error al generar imagen', 'danger');
+            } finally {
+                ocultarContenedor('contenedor-imagen-bloques');
             }
         }
         
+        // CORREGIDO: Misma solución aplicada
         async function generarImagenRanking() {
             try {
                 mostrarToast('Generando imagen de ranking...', 'info');
@@ -2117,8 +2147,7 @@
                 
                 participantes.sort((a, b) => b.puntajes?.total - a.puntajes?.total);
                 
-                const contenedor = document.getElementById('contenedor-imagen-ranking');
-                contenedor.classList.remove('hidden');
+                const contenedor = prepararContenedorParaRender('contenedor-imagen-ranking');
                 
                 let html = `
                     <div class="tabla-general-container">
@@ -2173,14 +2202,18 @@
                 `;
                 
                 contenedor.innerHTML = html;
-                await new Promise(resolve => setTimeout(resolve, 200));
+                await new Promise(resolve => setTimeout(resolve, 500));
                 
                 const canvas = await html2canvas(contenedor, {
                     scale: 3,
                     backgroundColor: '#0a1931',
                     useCORS: true,
                     logging: false,
-                    allowTaint: true
+                    allowTaint: true,
+                    scrollX: 0,
+                    scrollY: 0,
+                    windowWidth: contenedor.scrollWidth,
+                    windowHeight: contenedor.scrollHeight
                 });
                 
                 const link = document.createElement('a');
@@ -2188,14 +2221,14 @@
                 link.href = canvas.toDataURL('image/png', 1.0);
                 link.click();
                 
-                contenedor.classList.add('hidden');
-                contenedor.innerHTML = '';
                 mostrarToast('Imagen de ranking generada!', 'success');
                 reproducirSonido('trompeta');
                 
             } catch (error) {
                 console.error('Error al generar imagen de ranking:', error);
                 mostrarToast('Error al generar imagen', 'danger');
+            } finally {
+                ocultarContenedor('contenedor-imagen-ranking');
             }
         }
         
@@ -2365,6 +2398,7 @@
             }
         };
         
+        // CORREGIDO: Espera a que la vista esté visible antes de generar
         window.generarJPGAdmin = async (id) => {
             try {
                 const docSnap = await getDoc(doc(db, 'participantes', id));
@@ -2372,11 +2406,15 @@
                     const data = docSnap.data();
                     estado.usuarioActual = { id: id, nombre: data.nombre };
                     estado.respuestasTemporales = data.respuestas;
-                    mostrarResumen();
+                    
+                    // Pasar las respuestas reales del participante
+                    mostrarResumen(data.respuestas);
                     mostrarVista('vista-resumen');
-                    setTimeout(() => {
-                        document.getElementById('btn-descargar-jpg').click();
-                    }, 500);
+                    
+                    // Esperar a que la vista esté completamente renderizada
+                    await new Promise(resolve => setTimeout(resolve, 800));
+                    
+                    document.getElementById('btn-descargar-jpg').click();
                 }
             } catch (error) {
                 console.error('Error:', error);
