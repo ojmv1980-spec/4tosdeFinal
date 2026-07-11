@@ -2134,109 +2134,103 @@
         }
         
         // ============================================
-        // FUNCIÓN 3: RANKING (CORREGIDA)
-        // ============================================
-        async function generarImagenRanking() {
-            try {
-                mostrarToast('Generando imagen de ranking...', 'info');
-                
-                const participantesSnapshot = await getDocs(collection(db, 'participantes'));
-                const participantes = [];
-                participantesSnapshot.forEach(doc => {
-                    const data = doc.data();
-                    if (data.estado === 'COMPLETADO') {
-                        participantes.push({ id: doc.id, nombre: data.nombre, puntajes: data.puntajes });
-                    }
-                });
-                
-                participantes.sort((a, b) => b.puntajes?.total - a.puntajes?.total);
-                
-                const contenedorTemporal = document.createElement('div');
-                contenedorTemporal.style.cssText = `
-                    position: fixed !important;
-                    left: -10000px !important;
-                    top: 0 !important;
-                    visibility: visible !important;
-                    display: block !important;
-                    opacity: 1 !important;
-                    z-index: -9999 !important;
-                    width: 1150px !important;
-                `;
-                
-                let html = `<div style="background: linear-gradient(135deg, #0a1931 0%, #152642 50%, #6a1b9a 100%); border: 2px solid rgba(217, 70, 239, 0.5); border-radius: 20px; padding: 30px; color: white; width: 100%; font-family: 'Montserrat', sans-serif; box-sizing: border-box;">`;
-                
-                html += `<h2 style="font-family: 'Orbitron', sans-serif; font-weight: 900; color: white; text-align: center; margin-bottom: 10px; font-size: 36px; letter-spacing: 2px;">4TOS DE FINAL</h2>`;
-                html += `<p style="text-align: center; color: rgba(255,255,255,0.7); margin-bottom: 5px; font-size: 17px; font-weight: 600;">Tabla de Posiciones y Puntajes - Mundial 2026</p>`;
-                html += `<p style="text-align: center; color: rgba(255,255,255,0.5); margin-bottom: 25px; font-size: 13px;">Generado el ${new Date().toLocaleString('es-VE')}</p>`;
-                
-                html += `<table style="width: 100%; border-collapse: collapse; margin-top: 20px;">`;
-                html += `<thead><tr style="background: linear-gradient(135deg, #d946ef 0%, #6a1b9a 100%);">`;
-                html += `<th style="padding: 14px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 15px; letter-spacing: 0.1em; border: 1px solid rgba(255,255,255,0.2); width: 60px;">Pos</th>`;
-                html += `<th style="padding: 14px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 15px; letter-spacing: 0.1em; border: 1px solid rgba(255,255,255,0.2);">Nombre</th>`;
-                html += `<th style="padding: 10px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 14px; letter-spacing: 0.05em; border: 1px solid rgba(255,255,255,0.2); width: 65px;">B1</th>`;
-                html += `<th style="padding: 10px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 14px; letter-spacing: 0.05em; border: 1px solid rgba(255,255,255,0.2); width: 65px;">Pts</th>`;
-                html += `<th style="padding: 10px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 14px; letter-spacing: 0.05em; border: 1px solid rgba(255,255,255,0.2); width: 65px;">B2</th>`;
-                html += `<th style="padding: 10px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 14px; letter-spacing: 0.05em; border: 1px solid rgba(255,255,255,0.2); width: 65px;">Pts</th>`;
-                html += `<th style="padding: 10px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 14px; letter-spacing: 0.05em; border: 1px solid rgba(255,255,255,0.2); width: 65px;">B3</th>`;
-                html += `<th style="padding: 10px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 14px; letter-spacing: 0.05em; border: 1px solid rgba(255,255,255,0.2); width: 65px;">Pts</th>`;
-                html += `<th style="padding: 10px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 14px; letter-spacing: 0.05em; border: 1px solid rgba(255,255,255,0.2); width: 65px;">B4</th>`;
-                html += `<th style="padding: 10px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 14px; letter-spacing: 0.05em; border: 1px solid rgba(255,255,255,0.2); width: 65px;">Pts</th>`;
-                html += `<th style="padding: 14px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 15px; letter-spacing: 0.1em; border: 1px solid rgba(255,255,255,0.2); width: 90px;">TOTAL</th>`;
-                html += `</tr></thead><tbody>`;
-                
-                participantes.forEach((p, index) => {
-                    const pos = index + 1;
-                    const pts = p.puntajes || {};
-                    html += `<tr>`;
-                    html += `<td style="padding: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1); font-size: 17px; font-weight: 800;">${pos}</td>`;
-                    html += `<td style="padding: 12px; text-align: left; border: 1px solid rgba(255,255,255,0.1); font-weight: 700; font-size: 14px;">${p.nombre}</td>`;
-                    html += `<td style="padding: 10px; text-align: center; border: 1px solid rgba(255,255,255,0.1); font-size: 14px;">${pts.bloque_1 || 0}</td>`;
-                    html += `<td style="padding: 10px; text-align: center; border: 1px solid rgba(255,255,255,0.1); font-weight: 800; font-size: 14px;">${pts.bloque_1 || 0}</td>`;
-                    html += `<td style="padding: 10px; text-align: center; border: 1px solid rgba(255,255,255,0.1); font-size: 14px;">${pts.bloque_2 || 0}</td>`;
-                    html += `<td style="padding: 10px; text-align: center; border: 1px solid rgba(255,255,255,0.1); font-weight: 800; font-size: 14px;">${pts.bloque_2 || 0}</td>`;
-                    html += `<td style="padding: 10px; text-align: center; border: 1px solid rgba(255,255,255,0.1); font-size: 14px;">${pts.bloque_3 || 0}</td>`;
-                    html += `<td style="padding: 10px; text-align: center; border: 1px solid rgba(255,255,255,0.1); font-weight: 800; font-size: 14px;">${pts.bloque_3 || 0}</td>`;
-                    html += `<td style="padding: 10px; text-align: center; border: 1px solid rgba(255,255,255,0.1); font-size: 14px;">${pts.bloque_4 || 0}</td>`;
-                    html += `<td style="padding: 10px; text-align: center; border: 1px solid rgba(255,255,255,0.1); font-weight: 800; font-size: 14px;">${pts.bloque_4 || 0}</td>`;
-                    html += `<td style="padding: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1); font-size: 19px; font-weight: 800; color: #fbbf24;">${pts.total || 0}</td>`;
-                    html += `</tr>`;
-                });
-                
-                html += `</tbody></table></div>`;
-                
-                contenedorTemporal.innerHTML = html;
-                document.body.appendChild(contenedorTemporal);
-                await new Promise(resolve => setTimeout(resolve, 1500));
-                
-                const alturaReal = contenedorTemporal.scrollHeight;
-                
-                const canvas = await html2canvas(contenedorTemporal, {
-                    scale: 3,
-                    backgroundColor: '#0a1931',
-                    useCORS: true,
-                    logging: false,
-                    allowTaint: true,
-                    scrollX: 0,
-                    scrollY: 0,
-                    windowWidth: 1150,
-                    windowHeight: alturaReal + 50
-                });
-                
-                const link = document.createElement('a');
-                link.download = `4tos_ranking_posiciones.png`;
-                link.href = canvas.toDataURL('image/png', 1.0);
-                link.click();
-                
-                document.body.removeChild(contenedorTemporal);
-                mostrarToast('Imagen de ranking generada!', 'success');
-                reproducirSonido('trompeta');
-                
-            } catch (error) {
-                console.error('Error al generar imagen de ranking:', error);
-                mostrarToast('Error al generar imagen', 'danger');
-            }
-        }
+// FUNCIÓN 3: RANKING (CORREGIDA - SIN COLUMNAS REDUNDANTES)
+// ============================================
+async function generarImagenRanking() {
+    try {
+        mostrarToast('Generando imagen de ranking...', 'info');
         
+        const participantesSnapshot = await getDocs(collection(db, 'participantes'));
+        const participantes = [];
+        participantesSnapshot.forEach(doc => {
+            const data = doc.data();
+            if (data.estado === 'COMPLETADO') {
+                participantes.push({ id: doc.id, nombre: data.nombre, puntajes: data.puntajes });
+            }
+        });
+        
+        participantes.sort((a, b) => b.puntajes?.total - a.puntajes?.total);
+        
+        const contenedorTemporal = document.createElement('div');
+        contenedorTemporal.style.cssText = `
+            position: fixed !important;
+            left: -10000px !important;
+            top: 0 !important;
+            visibility: visible !important;
+            display: block !important;
+            opacity: 1 !important;
+            z-index: -9999 !important;
+            width: 750px !important;
+        `;
+        
+        let html = `<div style="background: linear-gradient(135deg, #0a1931 0%, #152642 50%, #6a1b9a 100%); border: 2px solid rgba(217, 70, 239, 0.5); border-radius: 20px; padding: 30px; color: white; width: 100%; font-family: 'Montserrat', sans-serif; box-sizing: border-box;">`;
+        
+        html += `<h2 style="font-family: 'Orbitron', sans-serif; font-weight: 900; color: white; text-align: center; margin-bottom: 10px; font-size: 36px; letter-spacing: 2px;">4TOS DE FINAL</h2>`;
+        html += `<p style="text-align: center; color: rgba(255,255,255,0.7); margin-bottom: 5px; font-size: 17px; font-weight: 600;">Tabla de Posiciones y Puntajes - Mundial 2026</p>`;
+        html += `<p style="text-align: center; color: rgba(255,255,255,0.5); margin-bottom: 25px; font-size: 13px;">Generado el ${new Date().toLocaleString('es-VE')}</p>`;
+        
+        html += `<table style="width: 100%; border-collapse: collapse; margin-top: 20px;">`;
+        html += `<thead><tr style="background: linear-gradient(135deg, #d946ef 0%, #6a1b9a 100%);">`;
+        html += `<th style="padding: 14px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 15px; letter-spacing: 0.1em; border: 1px solid rgba(255,255,255,0.2); width: 60px;">Pos</th>`;
+        html += `<th style="padding: 14px; text-align: left; font-weight: 800; text-transform: uppercase; font-size: 15px; letter-spacing: 0.1em; border: 1px solid rgba(255,255,255,0.2); width: 180px;">Nombre</th>`;
+        html += `<th style="padding: 14px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 15px; letter-spacing: 0.1em; border: 1px solid rgba(255,255,255,0.2); width: 70px;">B1</th>`;
+        html += `<th style="padding: 14px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 15px; letter-spacing: 0.1em; border: 1px solid rgba(255,255,255,0.2); width: 70px;">B2</th>`;
+        html += `<th style="padding: 14px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 15px; letter-spacing: 0.1em; border: 1px solid rgba(255,255,255,0.2); width: 70px;">B3</th>`;
+        html += `<th style="padding: 14px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 15px; letter-spacing: 0.1em; border: 1px solid rgba(255,255,255,0.2); width: 70px;">B4</th>`;
+        html += `<th style="padding: 14px; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 15px; letter-spacing: 0.1em; border: 1px solid rgba(255,255,255,0.2); width: 80px;">Total</th>`;
+        html += `</tr></thead><tbody>`;
+        
+        participantes.forEach((p, index) => {
+            const pos = index + 1;
+            const pts = p.puntajes || {};
+            html += `<tr>`;
+            html += `<td style="padding: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1); font-size: 17px; font-weight: 800;">${pos}</td>`;
+            html += `<td style="padding: 12px; text-align: left; border: 1px solid rgba(255,255,255,0.1); font-weight: 700; font-size: 14px;">${p.nombre}</td>`;
+            html += `<td style="padding: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1); font-size: 16px; font-weight: 700;">${pts.bloque_1 || 0}</td>`;
+            html += `<td style="padding: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1); font-size: 16px; font-weight: 700;">${pts.bloque_2 || 0}</td>`;
+            html += `<td style="padding: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1); font-size: 16px; font-weight: 700;">${pts.bloque_3 || 0}</td>`;
+            html += `<td style="padding: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1); font-size: 16px; font-weight: 700;">${pts.bloque_4 || 0}</td>`;
+            html += `<td style="padding: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1); font-size: 19px; font-weight: 800; color: #fbbf24;">${pts.total || 0}</td>`;
+            html += `</tr>`;
+        });
+        
+        html += `</tbody></table></div>`;
+        
+        contenedorTemporal.innerHTML = html;
+        document.body.appendChild(contenedorTemporal);
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        const alturaReal = contenedorTemporal.scrollHeight;
+        
+        const canvas = await html2canvas(contenedorTemporal, {
+            scale: 3,
+            backgroundColor: '#0a1931',
+            useCORS: true,
+            logging: false,
+            allowTaint: true,
+            scrollX: 0,
+            scrollY: 0,
+            windowWidth: 750,
+            windowHeight: alturaReal + 50
+        });
+        
+        const link = document.createElement('a');
+        link.download = `4tos_ranking_posiciones.png`;
+        link.href = canvas.toDataURL('image/png', 1.0);
+        link.click();
+        
+        document.body.removeChild(contenedorTemporal);
+        mostrarToast('Imagen de ranking generada!', 'success');
+        reproducirSonido('trompeta');
+        
+    } catch (error) {
+        console.error('Error al generar imagen de ranking:', error);
+        mostrarToast('Error al generar imagen', 'danger');
+    }
+}
+        
+		
+		
         window.editarParticipante = async (id) => {
             try {
                 const docSnap = await getDoc(doc(db, 'participantes', id));
