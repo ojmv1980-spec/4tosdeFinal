@@ -1804,7 +1804,7 @@
         // ============================================
         // FUNCIÓN NUEVA: GENERAR IMAGEN DE BLOQUE (FORMATO EDICIÓN)
         // ============================================
-        async function generarImagenBloqueEdicion(numeroBloque) {
+        window.generarImagenBloqueEdicion = async function(numeroBloque) {
             try {
                 const partido = PARTIDOS[numeroBloque - 1];
                 mostrarToast(`Generando imagen del Bloque ${numeroBloque}...`, 'info');
